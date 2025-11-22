@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Pausklocka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>Pausplanerare</h1>
+
+  <div id="liveClock" style="text-align:center; font-size:1.2rem; margin-bottom:1rem;">
+  --:--:--
+</div>
+
+  <div class="field">
+    <label for="preset">Sport / preset</label>
+    <select id="preset">
+      <option value="custom">Egen</option>
+      <option value="bandy">Bandy (18 min paus)</option>
+      <option value="innebandy">Innebandy (15 min paus)</option>
+      <option value="fotboll">Fotboll (15 min paus)</option>
+    </select>
+    <div id="presetInfo" class="small"></div>
+  </div>
+
+  <!-- Intervjufält direkt under preset -->
+  <div class="field">
+    <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
+    <input type="text" id="interviewHome" placeholder="1:30" />
+  </div>
+
+  <div class="field">
+    <label for="interviewAway">Intervju bortalag (mm:ss)</label>
+    <input type="text" id="interviewAway" placeholder="1:30" />
+  </div>
+
+  <div class="small" id="interviewTotalBox">
+    Totalt intervjupaket: <strong id="interviewTotalText">0:00</strong>
+  </div>
+
+
+  <div class="small">
+    Intervjutider påverkar inte pauskalkylen utan är endast för kommentatorns planering.
+  </div>
+  <!-- Slut intervjufält -->
+
+  <div class="field">
+    <label for="periodEnd">Period slutade (HH:MM)</label>
+    <input type="time" id="periodEnd" />
+  </div>
+
+  <div class="field">
+    <label for="pauseMinutes">Paustid (mm:ss)</label>
+    <input type="text" id="pauseMinutes" placeholder="1:30">
+  </div>
+
+  <button id="setNowBtn" type="button">Sätt periodslut till nu</button>
+
+  <hr />
+
+  <div class="field">
+    <label for="billboard">Billboard + vinjett (mm:ss)</label>
+    <input type="text" id="billboard" placeholder="1:30">
+
+  </div>
+
+  <div class="field">
+    <label for="highlights">Höjdpunkter (mm:ss)</label>
+    <input type="text" id="highlights" placeholder="0:45">
+
+  </div>
+
+  <div class="field">
+    <label for="talk">Extra prat (mm:ss)</label>
+    <input type="text" id="talk" placeholder="2:00">
+
+  </div>
+
+  <hr />
+
+  <button id="calcBtn" type="button">Räkna ut tider</button>
+
+  <div class="output" id="output">
+    <div id="resultLines"></div>
+    <div id="tightness" class="tightness"></div>
+    <div class="countdown" id="countdownOnAir"></div>
+    <div class="countdown" id="countdownPeriod"></div>
+    <div class="small">
+      Alla tider är lokal tid. Du kan runda av till hel minut i körschemat.
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
