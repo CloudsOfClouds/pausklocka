@@ -11,11 +11,11 @@
 <body>
   <h1>Pausplanerare</h1>
 
-  <div id="liveClock" style="text-align:center; font-size:1.2rem; margin-bottom:1rem;">
-  --:--:--
-</div>
+    <div id="liveClock" style="text-align:center; font-size:1.2rem; margin-bottom:1rem;">
+    --:--:--
+  </div>
 
-<!-- Manuell nedräkning till sändningsstart -->
+  <!-- Manuell nedräkning till sändningsstart + billboard -->
   <div class="field">
     <label for="manualOnAir">Sändningsstart (HH:MM)</label>
     <input type="time" id="manualOnAir" />
@@ -23,8 +23,10 @@
 
   <div class="output" id="manualOnAirBox" style="display:none;">
     <div class="countdown" id="manualOnAirCountdown"></div>
+    <div class="countdown" id="manualBillboardCountdown"></div>
   </div>
   <!-- Slut manuell nedräkning -->
+
 
   <div class="field">
     <label for="preset">Sport / preset</label>
