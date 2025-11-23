@@ -142,10 +142,24 @@ button:active {
 }
 
 .actions {
-  margin-top: 0.4rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  margin-top: 1rem;
 }
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid #3f4b63;
+  color: #cbd5e1;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 
 /* Output */
 
