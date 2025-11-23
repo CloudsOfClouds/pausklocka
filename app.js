@@ -211,9 +211,7 @@ function applyPreset(preset) {
 
   if (!pauseInput || !billboardInput || !highlightsInput || !talkInput) return;
 
-  if (!preset) {
-    return;
-  }
+  if (!preset) return;
 
   if (preset === "hockey_18") {
     pauseInput.value = "18:00";
@@ -233,28 +231,28 @@ function applyPreset(preset) {
   }
 }
 
-/* ---------- TÄTHETS-TEXT ---------- */
+/* ---------- TÄTHETS-TEXT (som i referensen) ---------- */
 
 function setTightnessMessage(diffSeconds) {
-  const tightnessEl = document.getElementById("tightness");
-  if (!tightnessEl) return;
+  const el = document.getElementById("tightness");
+  if (!el) return;
 
-  tightnessEl.className = "tightness";
+  el.className = "tightness";
 
-  const diffAbsStr = secondsToCountdownString(Math.abs(diffSeconds));
+  const absStr = secondsToCountdownString(Math.abs(diffSeconds));
 
   if (diffSeconds < 0) {
-    tightnessEl.textContent =
-      `Röd: Paketet är längre än pausen, du behöver kapa cirka ${diffAbsStr}.`;
-    tightnessEl.classList.add("tightness-bad");
+    el.textContent =
+      `Röd: Paketet är längre än pausen, kapa cirka ${absStr}.`;
+    el.classList.add("tightness-bad");
   } else if (diffSeconds <= 60) {
-    tightnessEl.textContent =
+    el.textContent =
       "Grön: Du ligger väldigt nära paustiden, tajt men okej.";
-    tightnessEl.classList.add("tightness-good");
+    el.classList.add("tightness-good");
   } else {
-    tightnessEl.textContent =
-      `Grön: Du har gott om marginal, +${diffAbsStr} utöver paketet.`;
-    tightnessEl.classList.add("tightness-ok");
+    el.textContent =
+      `Grön: Du har gott om marginal, +${absStr} utöver paketet.`;
+    el.classList.add("tightness-good");
   }
 }
 
@@ -281,7 +279,8 @@ function calculate() {
 
   const periodEndSeconds = parseClockToSeconds(periodEndStr);
   if (periodEndSeconds === null) {
-    resultLinesEl.innerHTML = "<p>Ange tid när perioden slutade (HH:MM eller HH:MM:SS).</p>";
+    resultLinesEl.innerHTML =
+      "<p>Ange tid när perioden slutade (HH:MM eller HH:MM:SS).</p>";
     setTightnessMessage(0);
     return;
   }
@@ -294,7 +293,8 @@ function calculate() {
   const interviewAwaySeconds = parseMMSS(interviewAwayStr);
   const interviewTotalSeconds = interviewHomeSeconds + interviewAwaySeconds;
 
-  const contentSeconds = billboardSeconds + highlightsSeconds + talkSeconds;
+  const contentSeconds =
+    billboardSeconds + highlightsSeconds + talkSeconds;
   const totalContentSeconds = contentSeconds + interviewTotalSeconds;
 
   const periodStartSeconds = periodEndSeconds + pauseSeconds;
@@ -305,46 +305,50 @@ function calculate() {
   const talkStartSeconds = highlightsStartSeconds + highlightsSeconds;
   const interviewsStartSeconds = talkStartSeconds + talkSeconds;
 
+  // Skillnad mot paketet (utan intervjuer), som i referensbilden
   const diffSeconds = pauseSeconds - contentSeconds;
 
   const lines = [];
 
   lines.push(
-    `<p><strong>Beräknad periodstart:</strong> ${secondsToClock(
-      periodStartSeconds
-    )}</p>`
+    `<p><strong>Beräknad periodstart:</strong> ` +
+      `<span class="time-number">${secondsToClock(periodStartSeconds)}</span></p>`
   );
   lines.push(
-    `<p><strong>Rekommenderad sändningsstart:</strong> ${secondsToClock(
-      onAirSeconds
-    )}</p>`
+    `<p><strong>Rekommenderad sändningsstart:</strong> ` +
+      `<span class="time-number">${secondsToClock(onAirSeconds)}</span></p>`
   );
   lines.push(
-    `<p><strong>Totalt innehåll (billboard + highlights + prat):</strong> ${secondsToCountdownString(
-      contentSeconds
-    )}</p>`
+    `<p><strong>Totalt innehåll (billboard + highlights + prat):</strong> ` +
+      `<span class="time-number">${secondsToCountdownString(
+        contentSeconds
+      )}</span></p>`
   );
   lines.push(
-    `<p><strong>Billboard + vinjett start:</strong> ${secondsToClock(
-      billboardStartSeconds
-    )}</p>`
+    `<p><strong>Billboard + vinjett start:</strong> ` +
+      `<span class="time-number">${secondsToClock(
+        billboardStartSeconds
+      )}</span></p>`
   );
   lines.push(
-    `<p><strong>Höjdpunkter start:</strong> ${secondsToClock(
-      highlightsStartSeconds
-    )}</p>`
+    `<p><strong>Höjdpunkter start:</strong> ` +
+      `<span class="time-number">${secondsToClock(
+        highlightsStartSeconds
+      )}</span></p>`
   );
   lines.push(
-    `<p><strong>Extra prat start:</strong> ${secondsToClock(
-      talkStartSeconds
-    )}</p>`
+    `<p><strong>Extra prat start:</strong> ` +
+      `<span class="time-number">${secondsToClock(
+        talkStartSeconds
+      )}</span></p>`
   );
   lines.push(
-    `<p><strong>Intervjupaket start:</strong> ${secondsToClock(
-      interviewsStartSeconds
-    )} (${secondsToCountdownString(
-      interviewTotalSeconds
-    )})</p>`
+    `<p><strong>Intervjupaket start:</strong> ` +
+      `<span class="time-number">${secondsToClock(
+        interviewsStartSeconds
+      )}</span> (${secondsToCountdownString(
+        interviewTotalSeconds
+      )})</p>`
   );
 
   resultLinesEl.innerHTML = lines.join("\n");
@@ -362,7 +366,9 @@ function calculate() {
   function updateCountdowns() {
     const now = new Date();
     const nowSeconds =
-      now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      now.getHours() * 3600 +
+      now.getMinutes() * 60 +
+      now.getSeconds();
 
     if (countdownOnAirEl) {
       const diffOnAir = onAirSeconds - nowSeconds;
