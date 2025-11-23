@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="sv">
-
 <head>
   <meta charset="UTF-8" />
   <title>Pausklocka</title>
@@ -11,11 +10,12 @@
 <body>
   <h1>Pausplanerare</h1>
 
-  <div id="liveClock" style="text-align:center; font-size:1.2rem; margin-bottom:1rem;">
-  --:--:--
-</div>
+  <!-- Liveklocka -->
+  <div id="liveClock" class="live-clock">
+    --:--:--
+  </div>
 
-<!-- Manuell nedräkning till sändningsstart -->
+  <!-- Manuell nedräkning till sändningsstart + billboard -->
   <div class="field">
     <label for="manualOnAir">Sändningsstart (HH:MM)</label>
     <input type="time" id="manualOnAir" />
@@ -23,76 +23,70 @@
 
   <div class="output" id="manualOnAirBox" style="display:none;">
     <div class="countdown" id="manualOnAirCountdown"></div>
+    <div class="countdown" id="manualBillboardCountdown"></div>
   </div>
   <!-- Slut manuell nedräkning -->
 
   <div class="field">
     <label for="preset">Sport / preset</label>
     <select id="preset">
-      <option value="custom">Egen</option>
-      <option value="bandy">Bandy (18 min paus)</option>
-      <option value="innebandy">Innebandy (15 min paus)</option>
-      <option value="fotboll">Fotboll (15 min paus)</option>
+      <option value="">Ingen preset</option>
+      <option value="hockey_18">Hockey 18 min period</option>
+      <option value="hockey_20">Hockey 20 min period</option>
+      <option value="football_45">Fotboll 45 min halvlek</option>
     </select>
-    <div id="presetInfo" class="small"></div>
-  </div>
-
-  <!-- Intervjufält direkt under preset -->
-  <div class="field">
-    <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
-    <input type="text" id="interviewHome" placeholder="1:30" />
   </div>
 
   <div class="field">
-    <label for="interviewAway">Intervju bortalag (mm:ss)</label>
-    <input type="text" id="interviewAway" placeholder="1:30" />
-  </div>
-
-  <div class="small" id="interviewTotalBox">
-    Totalt intervjupaket: <strong id="interviewTotalText">0:00</strong>
-  </div>
-
-
-  <div class="small">
-    Intervjutider påverkar inte pauskalkylen utan är endast för kommentatorns planering.
-  </div>
-  <!-- Slut intervjufält -->
-
-  <div class="field">
-    <label for="periodEnd">Period slutade (HH:MM)</label>
-    <input type="time" id="periodEnd" />
+    <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
+    <div class="inline-group">
+      <input type="text" id="periodEnd" placeholder="HH:MM:SS" inputmode="numeric" />
+      <button id="setNowBtn">Nu</button>
+    </div>
   </div>
 
   <div class="field">
-    <label for="pauseMinutes">Paustid (mm:ss)</label>
-    <input type="text" id="pauseMinutes" placeholder="1:30">
+    <label for="pauseMinutes">Pauslängd (mm:ss)</label>
+    <input type="text" id="pauseMinutes" placeholder="mm:ss" inputmode="numeric" />
   </div>
-
-  <button id="setNowBtn" type="button">Sätt periodslut till nu</button>
-
-  <hr />
 
   <div class="field">
     <label for="billboard">Billboard + vinjett (mm:ss)</label>
-    <input type="text" id="billboard" placeholder="1:30">
-
+    <input type="text" id="billboard" placeholder="mm:ss" inputmode="numeric" />
   </div>
 
   <div class="field">
     <label for="highlights">Höjdpunkter (mm:ss)</label>
-    <input type="text" id="highlights" placeholder="0:45">
-
+    <input type="text" id="highlights" placeholder="mm:ss" inputmode="numeric" />
   </div>
 
   <div class="field">
     <label for="talk">Extra prat (mm:ss)</label>
-    <input type="text" id="talk" placeholder="2:00">
-
+    <input type="text" id="talk" placeholder="mm:ss" inputmode="numeric" />
   </div>
 
-  <hr />
+  <fieldset class="field">
+    <legend>Intervjutider hemmalag / bortalag</legend>
 
-  <button id="calcBtn" type="button">Räkna ut tider</button>
+    <div class="field">
+      <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
+      <input type="text" id="interviewHome" placeholder="mm:ss" inputmode="numeric" />
+    </div>
+
+    <div class="field">
+      <label for="interviewAway">Intervju bortalag (mm:ss)</label>
+      <input type="text" id="interviewAway" placeholder="mm:ss" inputmode="numeric" />
+    </div>
+
+    <div class="output">
+      <strong>Totalt intervjupaket:</strong>
+      <span id="interviewTotal">0:00</span>
+    </div>
+  </fieldset>
+
+  <div class="actions">
+    <button id="calcBtn">Räkna ut tider</button>
+  </div>
 
   <div class="output" id="output">
     <div id="resultLines"></div>
@@ -106,5 +100,4 @@
 
   <script src="app.js"></script>
 </body>
-
 </html>
