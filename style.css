@@ -1,223 +1,247 @@
-:root {
-  --bg: #101015;
-  --bg-elevated: #181820;
-  --border: #30303a;
-  --text: #f4f4f4;
-  --text-muted: #9a9aaa;
-  --accent: #3ea6ff;
-}
+/* Grundlayout */
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  position: relative;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: radial-gradient(circle at top, #111827 0, #020617 45%);
+  color: #e5e7eb;
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  padding: 1rem;
-  max-width: 480px;
-  margin: 0 auto;
-  background: radial-gradient(circle at top, #1b1b26 0, #050509 60%);
-  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1.5rem;
 }
 
-h1 {
-  font-size: 1.4rem;
-  margin-bottom: 0.8rem;
-  text-align: center;
+.app {
+  width: 100%;
+  max-width: 720px;
 }
+
+/* Rubriker */
+
+h1 {
+  margin: 0 0 1rem 0;
+  font-size: 1.6rem;
+  text-align: center;
+  color: #f9fafb;
+}
+
+h2 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  color: #e5e7eb;
+}
+
+/* Kort / sektioner */
+
+.card {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.output-card {
+  margin-top: 0.5rem;
+}
+
+/* Liveklocka */
+
+.live-clock {
+  text-align: center;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.7rem;
+  color: #38bdf8;
+}
+
+/* Formfält */
 
 .field {
   margin-bottom: 0.8rem;
 }
 
-label {
+.field label {
   display: block;
   font-size: 0.9rem;
-  margin-bottom: 0.2rem;
+  color: #cbd5f5;
+  margin-bottom: 0.25rem;
 }
 
-input,
+.inline-group {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+input[type="text"],
+input[type="time"],
 select {
   width: 100%;
-  padding: 0.5rem 0.6rem;
-  font-size: 1rem;
-  background-color: var(--bg-elevated);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  padding: 0.38rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+input::placeholder {
+  color: #6b7280;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
 }
 
+legend {
+  font-size: 0.9rem;
+  padding: 0;
+  margin-bottom: 0.4rem;
+  color: #e5e7eb;
+}
+
+/* Knappar */
+
 button {
-  margin-top: 0.6rem;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  width: 100%;
-  border-radius: 4px;
   border: none;
+  border-radius: 6px;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  background: var(--accent);
-  color: #000;
-  font-weight: 500;
+  background: #0ea5e9;
+  color: #0b1120;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 button:hover {
-  opacity: 0.9;
+  background: #38bdf8;
 }
 
 button:active {
-  transform: scale(0.99);
+  transform: translateY(1px);
 }
 
-#setNowBtn {
-  margin-bottom: 0.6rem;
-  background: #444c60;
-  color: var(--text);
+.actions {
+  margin-top: 0.4rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 1rem 0;
-}
+/* Output */
 
 .output {
-  margin-top: 1rem;
-  padding: 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.95rem;
-  background-color: var(--bg-elevated);
-  display: none;
-}
-
-.countdown {
-  margin-top: 0.3rem;
-  font-size: 0.9rem;
-}
-
-.small {
-  font-size: 0.8rem;
-  color: var(--text-muted);
   margin-top: 0.4rem;
 }
 
-strong {
-  color: var(--accent);
+#resultLines p {
+  margin: 0 0 0.18rem 0;
+  font-size: 0.92rem;
 }
 
-/* Tightness-indikator */
-
-/* Tightness-ruta – återställning enligt bild 1 */
-
-.tightness-box {
-  margin-top: 0.7rem;
-  padding: 0.8rem 1rem;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  font-size: 0.95rem;
-  background: rgba(0, 0, 0, 0.25); /* mörk bakgrund */
-  color: #ffffff; /* vit text */
-  font-weight: 400; /* ej fetstil */
+#resultLines strong {
+  font-weight: 500;
 }
 
-.tightness-good {
-  background: rgba(34, 197, 94, 0.15);  /* ljusgrön bakgrund */
-  border-color: #22c55e;               /* grön kant */
-}
-
-.tightness-bad {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-}
-
-.tightness-warn {
-  background: rgba(249, 115, 22, 0.15);
-  border-color: #f97316;
-}
-
-
-#interviewTotalBox {
-  margin-bottom: 1rem;
-}
-
-.small + .field {
-  margin-top: 0.8rem;
-}
-
-#interviewTotalBox {
-  padding: 0.4rem 0.6rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  display: inline-block;
-}
-
-.timepicker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-.timepicker-box {
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-/* Gör tider/nummer blå & halvfet enligt bild 1 */
-
-#resultLines strong,
-#resultLines span.time-number {
-  color: #3b82f6; /* blå text */
-  font-weight: 600; /* halvfet */
-}
+/* Blå siffror */
 
 .time-number {
-  color: #3b82f6;  /* blå */
+  color: #3b82f6;
   font-weight: 600;
 }
 
-/* ---------------------------------------------------
-   TIGHTNESS – VIT TEXT + BLÅA SIFFROR
-   --------------------------------------------------- */
+/* Tightness-rutan */
 
-/* Hela rutan ska ha vit text */
+.tightness {
+  margin-top: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* Vit text i rutan */
 #tightness,
 .tightness,
 .tightness-good,
 .tightness-bad,
 .tightness-warn {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
-/* Gör siffervärden blå även i tightness-rutan */
+/* Färger per status */
+.tightness-good {
+  background: rgba(22, 163, 74, 0.23);
+  border-color: #22c55e;
+}
+
+.tightness-bad {
+  background: rgba(239, 68, 68, 0.23);
+  border-color: #ef4444;
+}
+
+.tightness-warn {
+  background: rgba(234, 179, 8, 0.23);
+  border-color: #eab308;
+}
+
+/* Blå siffror även inne i tightness-rutan */
+
 #tightness .time-number,
 .tightness .time-number,
 .tightness-good .time-number,
 .tightness-bad .time-number,
 .tightness-warn .time-number {
-  color: #3b82f6 !important;
-  font-weight: 600 !important;
+  color: #3b82f6;
+  font-weight: 600;
 }
 
+/* Nedräkningar nederst */
+
+.countdown {
+  margin-top: 0.25rem;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.small {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Mobilanpassning */
+
+@media (max-width: 600px) {
+  body {
+    padding: 0.8rem;
+  }
+
+  .card {
+    padding: 0.85rem 0.9rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}
