@@ -1,5 +1,8 @@
 let onAirTimer = null;
 let periodTimer = null;
+let manualPhase = "before"; // "before", "billboard", "done"
+let manualBillboardEndSeconds = null;
+
 
 const STORAGE_KEY = "pausePlannerStateV1";
 
@@ -51,7 +54,7 @@ function startLiveClock() {
 
     document.getElementById("liveClock").textContent = `${h}:${m}:${s}`;
 
-    // Uppdatera manuell nedräkning till sändningsstart
+    // Uppdatera manuell nedräkning + billboard-kedja
     updateManualOnAirCountdown();
 
     // Räkna ut exakt när nästa sekund börjar
@@ -63,6 +66,7 @@ function startLiveClock() {
 }
 
 startLiveClock();
+
 
 
 
@@ -102,6 +106,88 @@ function formatMargin(seconds) {
   const m = Math.floor(abs / 60);
   const s = abs % 60;
   return sign + m + " min " + String(s).padStart(2, "0") + " s";
+}
+
+function updateManualOnAirCountdown() {
+  const input = document.getElementById("manualOnAir");
+  const box = document.getElementById("manualOnAirBox");
+  const labelOnAir = document.getElementById("manualOnAirCountdown");
+  const labelBillboard = document.getElementById("manualBillboardCountdown");
+
+  if (!input || !box || !labelOnAir || !labelBillboard) return;
+
+  const manualValue = input.value;
+  const billboardStr = document.getElementById("billboard").value;
+
+  // Om ingen sändningstid är angiven döljer vi allt
+  if (!manualValue) {
+    box.style.display = "none";
+    labelOnAir.textContent = "";
+    labelBillboard.textContent = "";
+    manualPhase = "before";
+    manualBillboardEndSeconds = null;
+    return;
+  }
+
+  const targetSeconds = parseHHMMToSeconds(manualValue);
+  if (targetSeconds === null) {
+    box.style.display = "none";
+    labelOnAir.textContent = "";
+    labelBillboard.textContent = "";
+    manualPhase = "before";
+    manualBillboardEndSeconds = null;
+    return;
+  }
+
+  const now = new Date();
+  const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const diff = targetSeconds - nowSeconds;
+
+  box.style.display = "block";
+
+  // Om vi fortfarande är före sändningsstart: räkna ner till sändningsstart
+  if (diff > 0) {
+    manualPhase = "before";
+    manualBillboardEndSeconds = null;
+
+    labelOnAir.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+    labelBillboard.textContent = "";
+    return;
+  }
+
+  // Här är vi vid eller efter sändningsstart
+  if (manualPhase === "before") {
+    // Starta billboard-nedräkning första gången vi passerar sändningsstart
+    const billboardSeconds = parseDurationToSeconds(billboardStr);
+    if (billboardSeconds > 0) {
+      manualBillboardEndSeconds = nowSeconds + billboardSeconds;
+      manualPhase = "billboard";
+    } else {
+      manualPhase = "done";
+    }
+  }
+
+  // Visa att sändningsstart är nu
+  labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
+
+  if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
+    const remaining = manualBillboardEndSeconds - nowSeconds;
+
+    if (remaining <= 0) {
+      manualPhase = "done";
+      labelBillboard.textContent = "Billboard + vinjett: Klar";
+    } else {
+      labelBillboard.textContent =
+        "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
+    }
+  } else if (manualPhase === "done") {
+    if (billboardStr && parseDurationToSeconds(billboardStr) > 0) {
+      labelBillboard.textContent = "Billboard + vinjett: Klar";
+    } else {
+      labelBillboard.textContent = "";
+    }
+  }
 }
 
 function updateManualOnAirCountdown() {
@@ -212,6 +298,7 @@ function saveState() {
 }
 
 
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -244,6 +331,9 @@ function loadState() {
     }
     if (state.interviewAway !== undefined) {
       document.getElementById("interviewAway").value = state.interviewAway;
+    }
+    if (state.manualOnAir !== undefined) {
+      document.getElementById("manualOnAir").value = state.manualOnAir;
     }
     if (state.manualOnAir !== undefined) {
       document.getElementById("manualOnAir").value = state.manualOnAir;
@@ -361,13 +451,18 @@ loadState();
   const el = document.getElementById(id);
   if (!el) return;
   const evt = el.tagName === "SELECT" || el.type === "number" ? "change" : "input";
-  el.addEventListener(evt, () => {
+    el.addEventListener(evt, () => {
     if (id === "interviewHome" || id === "interviewAway") {
       updateInterviewTotal();
     }
+    if (id === "manualOnAir" || id === "billboard") {
+      manualPhase = "before";
+      manualBillboardEndSeconds = null;
+      updateManualOnAirCountdown();
+    }
     saveState();
   });
-});
+
 
 
 document.getElementById("setNowBtn").addEventListener("click", (e) => {
