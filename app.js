@@ -243,7 +243,7 @@ function setTightnessMessage(diffSeconds) {
 
   if (diffSeconds < 0) {
     el.textContent =
-      `Röd: Paketet är längre än pausen, kapa cirka ${absStr}.`;
+      `Röd: Paketet är längre än pausen, kapa cirka <span class="time-number">${absStr}</span>.`;
     el.classList.add("tightness-bad");
   } else if (diffSeconds <= 60) {
     el.textContent =
@@ -251,7 +251,7 @@ function setTightnessMessage(diffSeconds) {
     el.classList.add("tightness-good");
   } else {
     el.textContent =
-      `Grön: Du har gott om marginal, +${absStr} utöver paketet.`;
+      `Grön: Du har gott om marginal, +<span class="time-number">${absStr}</span> utöver paketet.`;
     el.classList.add("tightness-good");
   }
 }
