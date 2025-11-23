@@ -231,7 +231,7 @@ function applyPreset(preset) {
   }
 }
 
-/* ---------- TÄTHETS-TEXT (som i referensen) ---------- */
+/* ---------- TÄTHETS-TEXT MED BLÅ TIDER ---------- */
 
 function setTightnessMessage(diffSeconds) {
   const el = document.getElementById("tightness");
@@ -242,15 +242,15 @@ function setTightnessMessage(diffSeconds) {
   const absStr = secondsToCountdownString(Math.abs(diffSeconds));
 
   if (diffSeconds < 0) {
-    el.textContent =
+    el.innerHTML =
       `Röd: Paketet är längre än pausen, kapa cirka <span class="time-number">${absStr}</span>.`;
     el.classList.add("tightness-bad");
   } else if (diffSeconds <= 60) {
-    el.textContent =
+    el.innerHTML =
       "Grön: Du ligger väldigt nära paustiden, tajt men okej.";
     el.classList.add("tightness-good");
   } else {
-    el.textContent =
+    el.innerHTML =
       `Grön: Du har gott om marginal, +<span class="time-number">${absStr}</span> utöver paketet.`;
     el.classList.add("tightness-good");
   }
@@ -305,7 +305,7 @@ function calculate() {
   const talkStartSeconds = highlightsStartSeconds + highlightsSeconds;
   const interviewsStartSeconds = talkStartSeconds + talkSeconds;
 
-  // Skillnad mot paketet (utan intervjuer), som i referensbilden
+  // Skillnad mot paketet (utan intervjuer)
   const diffSeconds = pauseSeconds - contentSeconds;
 
   const lines = [];
