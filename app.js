@@ -96,6 +96,7 @@ function startLiveClock() {
 /**
  * 1) Nedräkning till sändningsstart (manualOnAir)
  * 2) När noll: nedräkning på billboard + vinjett
+ *    Puls på kortet bara medan billboard rullar
  */
 function updateManualOnAirCountdown() {
   const input = document.getElementById("manualOnAir");
@@ -103,18 +104,32 @@ function updateManualOnAirCountdown() {
   const labelOnAir = document.getElementById("manualOnAirCountdown");
   const labelBillboard = document.getElementById("manualBillboardCountdown");
   const billboardInput = document.getElementById("billboard");
+  const card = document.getElementById("manualOnAirCard");
 
-  if (!input || !box || !labelOnAir || !labelBillboard || !billboardInput) return;
+  if (!input || !box || !labelOnAir || !labelBillboard || !billboardInput) {
+    return;
+  }
+
+  // Nollställ visuellt läge
+  if (card) {
+    card.classList.remove("card-alert-danger");
+  }
+  labelOnAir.classList.remove("countdown-danger");
 
   const manualValue = input.value;
   const billboardStr = billboardInput.value;
 
+  // Inget manuellt klockslag
   if (!manualValue) {
     box.style.display = "none";
     labelOnAir.textContent = "";
     labelBillboard.textContent = "";
     manualPhase = "before";
     manualBillboardEndSeconds = null;
+    if (card) {
+      card.classList.remove("card-alert-danger");
+    }
+    labelOnAir.classList.remove("countdown-danger");
     return;
   }
 
@@ -125,20 +140,37 @@ function updateManualOnAirCountdown() {
     labelBillboard.textContent = "";
     manualPhase = "before";
     manualBillboardEndSeconds = null;
+    if (card) {
+      card.classList.remove("card-alert-danger");
+    }
+    labelOnAir.classList.remove("countdown-danger");
     return;
   }
 
   const now = new Date();
-  const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const nowSeconds =
+    now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
   const diff = targetSeconds - nowSeconds;
 
   box.style.display = "block";
 
+  // Mer än 15 sek kvar: vanlig nedräkning
+  if (diff > 15) {
+    manualPhase = "before";
+    manualBillboardEndSeconds = null;
+    labelOnAir.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+    labelBillboard.textContent = "";
+    return;
+  }
+
+  // Sista 15 sekunderna: gör klockan röd
   if (diff > 0) {
     manualPhase = "before";
     manualBillboardEndSeconds = null;
     labelOnAir.textContent =
       "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+    labelOnAir.classList.add("countdown-danger");
     labelBillboard.textContent = "";
     return;
   }
@@ -155,22 +187,35 @@ function updateManualOnAirCountdown() {
   }
 
   labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
+  labelOnAir.classList.add("countdown-danger");
 
+  // Billboardfas
   if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
     const remaining = manualBillboardEndSeconds - nowSeconds;
+
     if (remaining <= 0) {
       manualPhase = "done";
       labelBillboard.textContent = "Billboard + vinjett: Klar";
+      if (card) {
+        card.classList.remove("card-alert-danger");
+      }
     } else {
       labelBillboard.textContent =
         "Nedräkning billboard + vinjett: " +
         diffToCountdownString(remaining);
+      if (card) {
+        // Pulsera hela kortet medan billboard rullar
+        card.classList.add("card-alert-danger");
+      }
     }
   } else if (manualPhase === "done") {
     if (billboardStr && parseDurationToSeconds(billboardStr) > 0) {
       labelBillboard.textContent = "Billboard + vinjett: Klar";
     } else {
       labelBillboard.textContent = "";
+    }
+    if (card) {
+      card.classList.remove("card-alert-danger");
     }
   }
 }
@@ -194,8 +239,8 @@ function formatMMSS(totalSeconds) {
 }
 
 function updateInterviewTotal() {
-  const homeStr = document.getElementById("interviewHome").value;
-  const awayStr = document.getElementById("interviewAway").value;
+  const homeStr = document.getElementById("interviewHome")?.value || "";
+  const awayStr = document.getElementById("interviewAway")?.value || "";
   const total = parseMMSS(homeStr) + parseMMSS(awayStr);
   const el = document.getElementById("interviewTotal");
   if (el) el.textContent = formatMMSS(total);
@@ -213,21 +258,21 @@ function applyPreset(preset) {
 
   if (!preset) return;
 
-  if (preset === "hockey_18") {
+  if (preset === "bandy_18") {
     pauseInput.value = "18:00";
-    billboardInput.value = "0:30";
-    highlightsInput.value = "4:00";
-    talkInput.value = "3:30";
-  } else if (preset === "hockey_20") {
-    pauseInput.value = "18:00";
-    billboardInput.value = "0:30";
-    highlightsInput.value = "5:00";
-    talkInput.value = "4:30";
-  } else if (preset === "football_45") {
+    billboardInput.value = "1:20";
+    highlightsInput.value = "";
+    talkInput.value = "";
+  } else if (preset === "innebandy_15") {
+    pauseInput.value = "15:00";
+    billboardInput.value = "0:18";
+    highlightsInput.value = "";
+    talkInput.value = "";
+  } else if (preset === "fotboll_15") {
     pauseInput.value = "15:00";
     billboardInput.value = "0:30";
-    highlightsInput.value = "5:00";
-    talkInput.value = "3:00";
+    highlightsInput.value = "";
+    talkInput.value = "";
   }
 }
 
@@ -256,6 +301,41 @@ function setTightnessMessage(diffSeconds) {
   }
 }
 
+function resetPreviousPeriod() {
+  const periodEndInput = document.getElementById("periodEnd");
+  const highlightsInput = document.getElementById("highlights");
+  const talkInput = document.getElementById("talk");
+
+  if (periodEndInput) periodEndInput.value = "";
+  if (highlightsInput) highlightsInput.value = "";
+  if (talkInput) talkInput.value = "";
+
+  // Töm resultat och göm output-kortet
+  const resultLinesEl = document.getElementById("resultLines");
+  const outputBox = document.getElementById("output");
+  if (resultLinesEl) resultLinesEl.innerHTML = "";
+  if (outputBox) outputBox.style.display = "none";
+
+  // Töm tightness-rutan
+  const tightnessEl = document.getElementById("tightness");
+  if (tightnessEl) {
+    tightnessEl.textContent = "";
+    tightnessEl.className = "tightness";
+  }
+
+  // Stoppa nedräkning och nolla texterna
+  const countdownOnAirEl = document.getElementById("countdownOnAir");
+  const countdownPeriodEl = document.getElementById("countdownPeriod");
+
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+
+  if (countdownOnAirEl) countdownOnAirEl.textContent = "";
+  if (countdownPeriodEl) countdownPeriodEl.textContent = "";
+}
+
 /* ---------- HUVUDKALKYL ---------- */
 
 function calculate() {
@@ -274,8 +354,10 @@ function calculate() {
   const billboardStr = document.getElementById("billboard").value || "";
   const highlightsStr = document.getElementById("highlights").value || "";
   const talkStr = document.getElementById("talk").value || "";
-  const interviewHomeStr = document.getElementById("interviewHome").value || "";
-  const interviewAwayStr = document.getElementById("interviewAway").value || "";
+  const interviewHomeStr =
+    document.getElementById("interviewHome").value || "";
+  const interviewAwayStr =
+    document.getElementById("interviewAway").value || "";
 
   const periodEndSeconds = parseClockToSeconds(periodEndStr);
   if (periodEndSeconds === null) {
@@ -293,8 +375,7 @@ function calculate() {
   const interviewAwaySeconds = parseMMSS(interviewAwayStr);
   const interviewTotalSeconds = interviewHomeSeconds + interviewAwaySeconds;
 
-  const contentSeconds =
-    billboardSeconds + highlightsSeconds + talkSeconds;
+  const contentSeconds = billboardSeconds + highlightsSeconds + talkSeconds;
   const totalContentSeconds = contentSeconds + interviewTotalSeconds;
 
   const periodStartSeconds = periodEndSeconds + pauseSeconds;
@@ -312,7 +393,9 @@ function calculate() {
 
   lines.push(
     `<p><strong>Beräknad periodstart:</strong> ` +
-      `<span class="time-number">${secondsToClock(periodStartSeconds)}</span></p>`
+      `<span class="time-number">${secondsToClock(
+        periodStartSeconds
+      )}</span></p>`
   );
   lines.push(
     `<p><strong>Rekommenderad sändningsstart:</strong> ` +
@@ -323,32 +406,6 @@ function calculate() {
       `<span class="time-number">${secondsToCountdownString(
         contentSeconds
       )}</span></p>`
-  );
-  lines.push(
-    `<p><strong>Billboard + vinjett start:</strong> ` +
-      `<span class="time-number">${secondsToClock(
-        billboardStartSeconds
-      )}</span></p>`
-  );
-  lines.push(
-    `<p><strong>Höjdpunkter start:</strong> ` +
-      `<span class="time-number">${secondsToClock(
-        highlightsStartSeconds
-      )}</span></p>`
-  );
-  lines.push(
-    `<p><strong>Extra prat start:</strong> ` +
-      `<span class="time-number">${secondsToClock(
-        talkStartSeconds
-      )}</span></p>`
-  );
-  lines.push(
-    `<p><strong>Intervjupaket start:</strong> ` +
-      `<span class="time-number">${secondsToClock(
-        interviewsStartSeconds
-      )}</span> (${secondsToCountdownString(
-        interviewTotalSeconds
-      )})</p>`
   );
 
   resultLinesEl.innerHTML = lines.join("\n");
@@ -366,9 +423,7 @@ function calculate() {
   function updateCountdowns() {
     const now = new Date();
     const nowSeconds =
-      now.getHours() * 3600 +
-      now.getMinutes() * 60 +
-      now.getSeconds();
+      now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
     if (countdownOnAirEl) {
       const diffOnAir = onAirSeconds - nowSeconds;
@@ -464,6 +519,7 @@ function loadState() {
     }
 
     updateInterviewTotal();
+    updateManualOnAirCountdown();
   } catch (e) {
     console.warn("Kunde inte läsa state", e);
   }
@@ -526,6 +582,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const resetBtn = document.getElementById("resetBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetPreviousPeriod();
+      saveState();
+    });
+  }
+
   const calcBtn = document.getElementById("calcBtn");
   if (calcBtn) {
     calcBtn.addEventListener("click", (e) => {
@@ -535,16 +600,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-document.getElementById("resetBtn").addEventListener("click", () => {
-  document.getElementById("periodEnd").value = "";
-  document.getElementById("highlights").value = "";
-  document.getElementById("extraTalk").value = "";
-
-  // Töm även resultatet om du vill:
-  document.getElementById("result").innerHTML = "";
-
-  // Eventuell feedback:
-  console.log("Perioddata återställd");
-});
-
