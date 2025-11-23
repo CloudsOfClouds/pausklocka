@@ -17,13 +17,13 @@
     </div>
 
     <!-- Manuell nedräkning till sändningsstart + billboard -->
-    <section class="card">
-      <h2>Sändningsstart</h2>
+<section class="card" id="manualOnAirCard">
+  <h2>Sändningsstart</h2>
 
-      <div class="field">
-        <label for="manualOnAir">Sändningsstart (HH:MM)</label>
-        <input type="time" id="manualOnAir" />
-      </div>
+  <div class="field">
+    <label for="manualOnAir">Sändningsstart (HH:MM:SS)</label>
+    <input type="time" id="manualOnAir" step="1" />
+  </div>
 
       <div class="output" id="manualOnAirBox" style="display:none;">
         <div class="countdown" id="manualOnAirCountdown"></div>
@@ -38,9 +38,9 @@
         <label for="preset">Sport / preset</label>
         <select id="preset">
           <option value="">Ingen preset</option>
-          <option value="hockey_18">Hockey 18 min period</option>
-          <option value="hockey_20">Hockey 20 min period</option>
-          <option value="football_45">Fotboll 45 min halvlek</option>
+          <option value="bandy_18">Bandy 18 min paus</option>
+          <option value="innebandy_15">Innebandy 15 min paus</option>
+          <option value="fotboll_15">Fotboll 15 min paus</option>
         </select>
       </div>
 
