@@ -535,3 +535,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.getElementById("periodEnd").value = "";
+  document.getElementById("highlights").value = "";
+  document.getElementById("extraTalk").value = "";
+
+  // Töm även resultatet om du vill:
+  document.getElementById("result").innerHTML = "";
+
+  // Eventuell feedback:
+  console.log("Perioddata återställd");
+});
+
