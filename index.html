@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Pausklocka LIVE</title>
+  <title>Pausklocka</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,6 +14,17 @@
   <div id="liveClock" style="text-align:center; font-size:1.2rem; margin-bottom:1rem;">
   --:--:--
 </div>
+
+<!-- Manuell nedräkning till sändningsstart -->
+  <div class="field">
+    <label for="manualOnAir">Sändningsstart (HH:MM)</label>
+    <input type="time" id="manualOnAir" />
+  </div>
+
+  <div class="output" id="manualOnAirBox" style="display:none;">
+    <div class="countdown" id="manualOnAirCountdown"></div>
+  </div>
+  <!-- Slut manuell nedräkning -->
 
   <div class="field">
     <label for="preset">Sport / preset</label>
@@ -95,6 +106,5 @@
 
   <script src="app.js"></script>
 </body>
-
 
 </html>
