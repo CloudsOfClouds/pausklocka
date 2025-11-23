@@ -142,23 +142,27 @@ button:active {
 }
 
 .actions {
+  margin-top: 0.4rem;
   display: flex;
   justify-content: space-between;
-  margin-top: 1rem;
+  gap: 0.5rem;
 }
+
 
 .secondary-btn {
   background: transparent;
   border: 1px solid #3f4b63;
   color: #cbd5e1;
-  padding: 0.4rem 0.8rem;
-  border-radius: 5px;
+  font-weight: 500;
+  padding: 0.38rem 0.7rem;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 .secondary-btn:hover {
   background: rgba(255, 255, 255, 0.05);
 }
+
 
 
 /* Output */
@@ -176,6 +180,12 @@ button:active {
   font-weight: 500;
 }
 
+#resultLines p {
+  margin: 0.3rem 0;
+  line-height: 1.45;
+}
+
+
 /* Blå siffror */
 
 .time-number {
@@ -187,7 +197,8 @@ button:active {
 
 .tightness {
   margin-top: 0.7rem;
-  padding: 0.7rem 0.9rem;
+  padding: 0.7rem 1rem;
+  line-height: 1.4;
   border-radius: 8px;
   border: 1px solid transparent;
   font-size: 0.9rem;
@@ -236,7 +247,38 @@ button:active {
   margin-top: 0.25rem;
   font-size: 0.92rem;
   font-variant-numeric: tabular-nums;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
+
+/* Röd varning för sista sekunderna */
+.countdown-danger {
+  color: #fecaca;
+  font-weight: 600;
+}
+
+/* Puls för hela kortet när sändningen har startat */
+@keyframes card-alert-pulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+  50% {
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(248, 113, 113, 0.8);
+    border-color: rgba(248, 113, 113, 0.9);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+}
+
+.card-alert-danger {
+  animation: card-alert-pulse 1s ease-in-out infinite;
+}
+
 
 .small {
   margin-top: 0.5rem;
