@@ -40,29 +40,29 @@
   <div class="field">
     <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
     <div class="inline-group">
-      <input type="text" id="periodEnd" placeholder="HH:MM:SS" inputmode="numeric" />
+      <input type="text" id="periodEnd" placeholder="HH:MM:SS" inputmode="text" pattern="[0-9:]*" />
       <button id="setNowBtn">Nu</button>
     </div>
   </div>
 
   <div class="field">
     <label for="pauseMinutes">Pauslängd (mm:ss)</label>
-    <input type="text" id="pauseMinutes" placeholder="mm:ss" inputmode="numeric" />
+    <input type="text" id="pauseMinutes" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
   </div>
 
   <div class="field">
     <label for="billboard">Billboard + vinjett (mm:ss)</label>
-    <input type="text" id="billboard" placeholder="mm:ss" inputmode="numeric" />
+    <input type="text" id="billboard" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
   </div>
 
   <div class="field">
     <label for="highlights">Höjdpunkter (mm:ss)</label>
-    <input type="text" id="highlights" placeholder="mm:ss" inputmode="numeric" />
+    <input type="text" id="highlights" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
   </div>
 
   <div class="field">
     <label for="talk">Extra prat (mm:ss)</label>
-    <input type="text" id="talk" placeholder="mm:ss" inputmode="numeric" />
+    <input type="text" id="talk" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
   </div>
 
   <fieldset class="field">
@@ -70,12 +70,12 @@
 
     <div class="field">
       <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
-      <input type="text" id="interviewHome" placeholder="mm:ss" inputmode="numeric" />
+      <input type="text" id="interviewHome" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
     </div>
 
     <div class="field">
       <label for="interviewAway">Intervju bortalag (mm:ss)</label>
-      <input type="text" id="interviewAway" placeholder="mm:ss" inputmode="numeric" />
+      <input type="text" id="interviewAway" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
     </div>
 
     <div class="output">
