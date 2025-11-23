@@ -198,3 +198,26 @@ strong {
   font-weight: 600;
 }
 
+/* ---------------------------------------------------
+   TIGHTNESS – VIT TEXT + BLÅA SIFFROR
+   --------------------------------------------------- */
+
+/* Hela rutan ska ha vit text */
+#tightness,
+.tightness,
+.tightness-good,
+.tightness-bad,
+.tightness-warn {
+  color: #ffffff !important;
+}
+
+/* Gör siffervärden blå även i tightness-rutan */
+#tightness .time-number,
+.tightness .time-number,
+.tightness-good .time-number,
+.tightness-bad .time-number,
+.tightness-warn .time-number {
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+}
+
