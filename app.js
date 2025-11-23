@@ -1,7 +1,5 @@
 let onAirTimer = null;
 let periodTimer = null;
-let manualPhase = "before"; // "before", "billboard", "done"
-let manualBillboardEndSeconds = null;
 
 const STORAGE_KEY = "pausePlannerStateV1";
 
@@ -10,63 +8,39 @@ const STORAGE_KEY = "pausePlannerStateV1";
 function parseHHMMToSeconds(str) {
   if (!str) return null;
   const parts = str.split(":").map(Number);
-  if (parts.length !== 2 || Number.isNaN(parts[0]) || Number.isNaN(parts[1])) return null;
+  if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
   return parts[0] * 3600 + parts[1] * 60;
 }
 
-// mm:ss eller HH:MM:SS
 function parseDurationToSeconds(str) {
   if (!str) return 0;
-  const parts = str.split(":").map((p) => Number(p.trim()));
-  if (parts.some((n) => Number.isNaN(n))) return 0;
+
+  // Gör det lättare att skriva på mobilen:
+  // 1,15 eller 1.15 tolkas som 1:15
+  str = str.trim().replace(",", ":").replace(".", ":");
+
+  const parts = str.split(":").map((p) => Number(p));
+  if (parts.some((p) => Number.isNaN(p))) return 0;
+
+  if (parts.length === 1) {
+    // "5" -> 5 minuter
+    return parts[0] * 60;
+  }
 
   if (parts.length === 2) {
+    // "MM:SS" (t.ex. 1:20 eller 1,20)
     const [m, s] = parts;
     return m * 60 + s;
   }
+
   if (parts.length === 3) {
+    // "HH:MM:SS" (t.ex. 00:18:00 från preset)
     const [h, m, s] = parts;
     return h * 3600 + m * 60 + s;
   }
+
   return 0;
 }
-
-function formatTime(date) {
-  if (!(date instanceof Date)) return "";
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
-  const s = String(date.getSeconds()).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-}
-
-function secondsToCountdownString(totalSeconds) {
-  if (!Number.isFinite(totalSeconds)) return "";
-  if (totalSeconds < 0) totalSeconds = 0;
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-
-  if (h > 0) {
-    return `${h} h ${m} min ${s} s`;
-  }
-  if (m > 0) {
-    return `${m} min ${s} s`;
-  }
-  return `${s} s`;
-}
-
-function diffToCountdownString(diffSeconds) {
-  if (diffSeconds <= 0) return "Nu";
-  return secondsToCountdownString(diffSeconds);
-}
-
-function addSeconds(baseDate, seconds) {
-  const d = new Date(baseDate.getTime());
-  d.setSeconds(d.getSeconds() + seconds);
-  return d;
-}
-
-/* ---------- LIVEKLOCKA + MANUELL NEDRÄKNING ---------- */
 
 function startLiveClock() {
   function updateClock() {
@@ -75,14 +49,12 @@ function startLiveClock() {
     const m = String(now.getMinutes()).padStart(2, "0");
     const s = String(now.getSeconds()).padStart(2, "0");
 
-    const liveEl = document.getElementById("liveClock");
-    if (liveEl) {
-      liveEl.textContent = `${h}:${m}:${s}`;
-    }
+    document.getElementById("liveClock").textContent = `${h}:${m}:${s}`;
 
-    // Uppdatera kedjan: sändningsstart -> billboard + vinjett
+    // Uppdatera manuell nedräkning till sändningsstart
     updateManualOnAirCountdown();
 
+    // Räkna ut exakt när nästa sekund börjar
     const msToNextSecond = 1000 - now.getMilliseconds();
     setTimeout(updateClock, msToNextSecond);
   }
@@ -90,39 +62,66 @@ function startLiveClock() {
   updateClock();
 }
 
-/**
- * Kedja:
- * 1) Nedräkning till sändningsstart (manualOnAir)
- * 2) När den träffar 0 startar nedräkning på billboard + vinjett
- */
+startLiveClock();
+
+
+
+
+
+function secondsToHHMMSS(totalSeconds) {
+  totalSeconds = ((totalSeconds % 86400) + 86400) % 86400;
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return (
+    String(h).padStart(2, "0") +
+    ":" +
+    String(m).padStart(2, "0") +
+    ":" +
+    String(s).padStart(2, "0")
+  );
+}
+
+function secondsToMMSS(totalSeconds) {
+  if (totalSeconds < 0) totalSeconds = 0;
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return m + ":" + String(s).padStart(2, "0");
+}
+
+function diffToCountdownString(diffSeconds) {
+  if (diffSeconds <= 0) return "Nu";
+  const m = Math.floor(diffSeconds / 60);
+  const s = diffSeconds % 60;
+  return m + " min " + String(s).padStart(2, "0") + " s kvar";
+}
+
+function formatMargin(seconds) {
+  const sign = seconds < 0 ? "-" : "+";
+  const abs = Math.abs(seconds);
+  const m = Math.floor(abs / 60);
+  const s = abs % 60;
+  return sign + m + " min " + String(s).padStart(2, "0") + " s";
+}
+
 function updateManualOnAirCountdown() {
   const input = document.getElementById("manualOnAir");
   const box = document.getElementById("manualOnAirBox");
-  const labelOnAir = document.getElementById("manualOnAirCountdown");
-  const labelBillboard = document.getElementById("manualBillboardCountdown");
+  const label = document.getElementById("manualOnAirCountdown");
 
-  if (!input || !box || !labelOnAir || !labelBillboard) return;
+  if (!input || !box || !label) return;
 
-  const manualValue = input.value;
-  const billboardStr = document.getElementById("billboard").value;
-
-  // Ingen sändningstid angiven
-  if (!manualValue) {
+  // Om ingen tid är angiven: dölj boxen
+  if (!input.value) {
     box.style.display = "none";
-    labelOnAir.textContent = "";
-    labelBillboard.textContent = "";
-    manualPhase = "before";
-    manualBillboardEndSeconds = null;
+    label.textContent = "";
     return;
   }
 
-  const targetSeconds = parseHHMMToSeconds(manualValue);
+  const targetSeconds = parseHHMMToSeconds(input.value);
   if (targetSeconds === null) {
     box.style.display = "none";
-    labelOnAir.textContent = "";
-    labelBillboard.textContent = "";
-    manualPhase = "before";
-    manualBillboardEndSeconds = null;
+    label.textContent = "";
     return;
   }
 
@@ -132,263 +131,63 @@ function updateManualOnAirCountdown() {
 
   box.style.display = "block";
 
-  // Fortfarande före sändningsstart
-  if (diff > 0) {
-    manualPhase = "before";
-    manualBillboardEndSeconds = null;
-    labelOnAir.textContent = "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
-    labelBillboard.textContent = "";
-    return;
-  }
-
-  // Vi är vid eller efter sändningsstart
-  if (manualPhase === "before") {
-    const billboardSeconds = parseDurationToSeconds(billboardStr);
-    if (billboardSeconds > 0) {
-      manualBillboardEndSeconds = nowSeconds + billboardSeconds;
-      manualPhase = "billboard";
-    } else {
-      manualPhase = "done";
-    }
-  }
-
-  labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
-
-  if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
-    const remaining = manualBillboardEndSeconds - nowSeconds;
-
-    if (remaining <= 0) {
-      manualPhase = "done";
-      labelBillboard.textContent = "Billboard + vinjett: Klar";
-    } else {
-      labelBillboard.textContent =
-        "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
-    }
-  } else if (manualPhase === "done") {
-    if (billboardStr && parseDurationToSeconds(billboardStr) > 0) {
-      labelBillboard.textContent = "Billboard + vinjett: Klar";
-    } else {
-      labelBillboard.textContent = "";
-    }
+  if (diff <= 0) {
+    label.textContent = "Nedräkning till sändningsstart: Nu";
+  } else {
+    label.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
   }
 }
+
 
 /* ---------- PRESETS ---------- */
 
-function applyPreset(preset) {
+function applyPreset(value) {
   const pauseInput = document.getElementById("pauseMinutes");
+  const info = document.getElementById("presetInfo");
   const billboardInput = document.getElementById("billboard");
-  const highlightsInput = document.getElementById("highlights");
-  const talkInput = document.getElementById("talk");
 
-  if (!pauseInput || !billboardInput || !highlightsInput || !talkInput) return;
-
-  if (!preset) {
-    pauseInput.value = "";
-    billboardInput.value = "";
-    highlightsInput.value = "";
-    talkInput.value = "";
-    return;
-  }
-
-  if (preset === "hockey_18") {
-    pauseInput.value = "18:00";
-    billboardInput.value = "0:30";
-    highlightsInput.value = "4:00";
-    talkInput.value = "3:30";
-  } else if (preset === "hockey_20") {
-    pauseInput.value = "18:00";
-    billboardInput.value = "0:30";
-    highlightsInput.value = "5:00";
-    talkInput.value = "4:30";
-  } else if (preset === "football_45") {
-    pauseInput.value = "15:00";
-    billboardInput.value = "0:30";
-    highlightsInput.value = "5:00";
-    talkInput.value = "3:00";
+  if (value === "bandy") {
+    pauseInput.value = "00:18:00";   // 18 min paus
+    billboardInput.value = "00:01:20"; // 1:20 billboard
+    info.textContent = "Bandy: ca 18 min paus och 1:20 standard vinjett.";
+  } else if (value === "innebandy") {
+    pauseInput.value = "00:15:00";   // 15 min paus
+    billboardInput.value = "00:00:50"; // 0:50 billboard
+    info.textContent = "Innebandy: ca 10–15 min paus och 0:50 standard vinjett.";
+  } else if (value === "fotboll") {
+    pauseInput.value = "00:15:00";   // 15 min paus
+    billboardInput.value = "00:02:04"; // 2:04 billboard
+    info.textContent = "Fotboll: ca 15 min paus och 2:04 standard vinjett.";
+  } else {
+    info.textContent = "";
   }
 }
 
-/* ---------- INTERVJUPAKET ---------- */
 
-function parseMMSS(str) {
-  if (!str) return 0;
-  const parts = str.split(":").map((p) => Number(p.trim()));
-  if (parts.length !== 2 || parts.some((n) => Number.isNaN(n))) return 0;
-  const [m, s] = parts;
-  return m * 60 + s;
+/* ---------- PERIODSLUT = NU ---------- */
+
+function setPeriodEndToNow() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, "0");
+  const m = String(now.getMinutes()).padStart(2, "0");
+  document.getElementById("periodEnd").value = `${h}:${m}`;
+  saveState();
 }
 
-function formatMMSS(totalSeconds) {
-  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) totalSeconds = 0;
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
+/* ---------- INTERVJU-TOTAL ---------- */
 
 function updateInterviewTotal() {
-  const home = parseMMSS(document.getElementById("interviewHome").value);
-  const away = parseMMSS(document.getElementById("interviewAway").value);
-  const total = home + away;
-  const el = document.getElementById("interviewTotal");
-  if (el) el.textContent = formatMMSS(total);
-}
+  const homeStr = document.getElementById("interviewHome").value;
+  const awayStr = document.getElementById("interviewAway").value;
 
-/* ---------- TIGHTNESS-INDIKATOR ---------- */
+  const homeSec = parseDurationToSeconds(homeStr);
+  const awaySec = parseDurationToSeconds(awayStr);
 
-function setTightnessMessage(diffSeconds) {
-  const tightnessEl = document.getElementById("tightness");
-  if (!tightnessEl) return;
+  const totalSec = homeSec + awaySec;
 
-  tightnessEl.className = "tightness";
-
-  if (diffSeconds < -60) {
-    tightnessEl.textContent = "Du ligger mycket efter, kapa innehåll eller ta bort inslag.";
-    tightnessEl.classList.add("tightness-bad");
-  } else if (diffSeconds < 0) {
-    tightnessEl.textContent = "Du ligger lite efter, överväg att korta någon del.";
-    tightnessEl.classList.add("tightness-warn");
-  } else if (diffSeconds <= 60) {
-    tightnessEl.textContent = "Tajming nästan perfekt, bara några sekunder marginal.";
-    tightnessEl.classList.add("tightness-good");
-  } else if (diffSeconds <= 180) {
-    tightnessEl.textContent = "Du har lite luft, fyll på med extra prat eller grafik.";
-    tightnessEl.classList.add("tightness-ok");
-  } else {
-    tightnessEl.textContent = "Stor marginal, fundera på om ni vill lägga till mer innehåll.";
-    tightnessEl.classList.add("tightness-loose");
-  }
-}
-
-/* ---------- HUVUDBERÄKNING ---------- */
-
-function calculate() {
-  const resultLinesEl = document.getElementById("resultLines");
-  if (!resultLinesEl) return;
-
-  // VISA resultatboxen när vi räknar
-  const outputBox = document.getElementById("output");
-  if (outputBox) {
-    outputBox.style.display = "block";
-  }
-
-  resultLinesEl.innerHTML = "";
-  const countdownOnAirEl = document.getElementById("countdownOnAir");
-  const countdownPeriodEl = document.getElementById("countdownPeriod");
-
-
-  if (onAirTimer) {
-    clearInterval(onAirTimer);
-    onAirTimer = null;
-  }
-  if (periodTimer) {
-    clearInterval(periodTimer);
-    periodTimer = null;
-  }
-
-  const periodEndStr = document.getElementById("periodEnd").value.trim();
-  const pauseStr = document.getElementById("pauseMinutes").value.trim();
-  const billboardStr = document.getElementById("billboard").value.trim();
-  const highlightsStr = document.getElementById("highlights").value.trim();
-  const talkStr = document.getElementById("talk").value.trim();
-  const interviewHomeStr = document.getElementById("interviewHome").value.trim();
-  const interviewAwayStr = document.getElementById("interviewAway").value.trim();
-
-  if (!periodEndStr || !periodEndStr.includes(":")) {
-    resultLinesEl.innerHTML = "<p>Ange en giltig tid för när perioden slutade.</p>";
-    return;
-  }
-
-  const now = new Date();
-  const [h, m, s] = periodEndStr.split(":").map((p) => Number(p.trim()));
-  if (Number.isNaN(h) || Number.isNaN(m) || Number.isNaN(s)) {
-    resultLinesEl.innerHTML = "<p>Ange en giltig tid för när perioden slutade.</p>";
-    return;
-  }
-
-  const periodEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
-
-  const pauseSeconds = parseDurationToSeconds(pauseStr);
-  const billboardSeconds = parseDurationToSeconds(billboardStr);
-  const highlightsSeconds = parseDurationToSeconds(highlightsStr);
-  const talkSeconds = parseDurationToSeconds(talkStr);
-  const interviewHomeSeconds = parseMMSS(interviewHomeStr);
-  const interviewAwaySeconds = parseMMSS(interviewAwayStr);
-  const interviewTotalSeconds = interviewHomeSeconds + interviewAwaySeconds;
-
-  const onAirTime = addSeconds(periodEnd, pauseSeconds);
-  const billboardStart = addSeconds(onAirTime, -billboardSeconds);
-  const highlightsStart = addSeconds(billboardStart, billboardSeconds);
-  const talkStart = addSeconds(highlightsStart, highlightsSeconds);
-  const interviewsStart = addSeconds(talkStart, talkSeconds);
-
-  const payloadSeconds =
-    billboardSeconds + highlightsSeconds + talkSeconds + interviewTotalSeconds;
-  const diffSeconds = pauseSeconds - payloadSeconds;
-
-  const lines = [];
-
-  lines.push(
-    `<p><strong>Sändningsstart:</strong> ${formatTime(onAirTime)}</p>`
-  );
-  lines.push(
-    `<p><strong>Billboard + vinjett start:</strong> ${formatTime(
-      billboardStart
-    )} (${secondsToCountdownString(billboardSeconds)} totalt)</p>`
-  );
-  lines.push(
-    `<p><strong>Höjdpunkter start:</strong> ${formatTime(
-      highlightsStart
-    )} (${secondsToCountdownString(highlightsSeconds)} totalt)</p>`
-  );
-  lines.push(
-    `<p><strong>Extra prat start:</strong> ${formatTime(
-      talkStart
-    )} (${secondsToCountdownString(talkSeconds)} totalt)</p>`
-  );
-  lines.push(
-    `<p><strong>Intervjupaket start:</strong> ${formatTime(
-      interviewsStart
-    )} (${secondsToCountdownString(interviewTotalSeconds)} totalt)</p>`
-  );
-
-  lines.push(
-    `<p><strong>Payload:</strong> ${secondsToCountdownString(
-      payloadSeconds
-    )}</p>`
-  );
-  lines.push(
-    `<p><strong>Skillnad mot pauslängd:</strong> ${diffSeconds} s</p>`
-  );
-
-  resultLinesEl.innerHTML = lines.join("\n");
-
-  setTightnessMessage(diffSeconds);
-
-  if (countdownOnAirEl) {
-    onAirTimer = setInterval(() => {
-      const nowInner = new Date();
-      const diff = Math.floor((onAirTime.getTime() - nowInner.getTime()) / 1000);
-      if (diff <= 0) {
-        countdownOnAirEl.textContent = "Nedräkning till sändningsstart: Nu";
-        clearInterval(onAirTimer);
-        onAirTimer = null;
-      } else {
-        countdownOnAirEl.textContent =
-          "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
-      }
-    }, 500);
-  }
-
-  if (countdownPeriodEl) {
-    periodTimer = setInterval(() => {
-      const nowInner = new Date();
-      const diff = Math.floor((nowInner.getTime() - periodEnd.getTime()) / 1000);
-      const absDiff = Math.abs(diff);
-      countdownPeriodEl.textContent =
-        "Tid sedan perioden slutade: " + secondsToCountdownString(absDiff);
-    }, 1000);
-  }
+  document.getElementById("interviewTotalText").textContent =
+  totalSec > 0 ? secondsToMMSS(totalSec) : "0:00";
 }
 
 /* ---------- AUTOSAVE ---------- */
@@ -411,6 +210,7 @@ function saveState() {
     console.warn("Kunde inte spara state", e);
   }
 }
+
 
 function loadState() {
   try {
@@ -455,65 +255,130 @@ function loadState() {
   }
 }
 
-/* ---------- INIT ---------- */
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadState();
-  startLiveClock();
+/* ---------- HUVUDKALKYL ---------- */
 
-  const presetSelect = document.getElementById("preset");
-  if (presetSelect) {
-    presetSelect.addEventListener("change", () => {
-      applyPreset(presetSelect.value);
-      saveState();
-    });
+function calculate() {
+  const periodEndStr = document.getElementById("periodEnd").value;
+  const pauseStr = document.getElementById("pauseMinutes").value || "";
+
+  const billboardStr = document.getElementById("billboard").value;
+  const highlightsStr = document.getElementById("highlights").value;
+  const talkStr = document.getElementById("talk").value;
+
+  const periodEndSeconds = parseHHMMToSeconds(periodEndStr);
+  if (periodEndSeconds === null) {
+    alert("Ange tid när perioden slutade (HH:MM).");
+    return;
   }
 
-  [
-    "periodEnd",
-    "pauseMinutes",
-    "billboard",
-    "highlights",
-    "talk",
-    "interviewHome",
-    "interviewAway",
-    "manualOnAir"
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const evt = el.tagName === "SELECT" || el.type === "number" ? "change" : "input";
-    el.addEventListener(evt, () => {
-      if (id === "interviewHome" || id === "interviewAway") {
-        updateInterviewTotal();
-      }
-      if (id === "manualOnAir" || id === "billboard") {
-        manualPhase = "before";
-        manualBillboardEndSeconds = null;
-        updateManualOnAirCountdown();
-      }
-      saveState();
-    });
+  // Paus som HH:MM:SS
+  const pauseSeconds = parseDurationToSeconds(pauseStr);
+
+  const totalContentSeconds =
+    parseDurationToSeconds(billboardStr) +
+    parseDurationToSeconds(highlightsStr) +
+    parseDurationToSeconds(talkStr);
+
+  const periodStartSeconds = periodEndSeconds + pauseSeconds;
+  const onAirSeconds = periodStartSeconds - totalContentSeconds;
+
+  const resultLines = document.getElementById("resultLines");
+  resultLines.innerHTML = `
+    <p>Beräknad periodstart: <strong>${secondsToHHMMSS(periodStartSeconds)}</strong></p>
+    <p>Rekommenderad sändningsstart: <strong>${secondsToHHMMSS(onAirSeconds)}</strong></p>
+    <p>Totalt innehåll (billboard + highlights + prat): 
+      <strong>${Math.floor(totalContentSeconds / 60)} min ${totalContentSeconds % 60} s</strong>
+    </p>
+  `;
+
+// Tightness-indikator
+
+  const tightnessDiv = document.getElementById("tightness");
+  const marginSeconds = pauseSeconds - totalContentSeconds;
+
+  let tightText = "";
+  let tightClass = "tightness";
+
+  if (marginSeconds >= 180) {
+    tightText = "Grön: Du har gott om marginal, " + formatMargin(marginSeconds) + " utöver paketet.";
+    tightClass += " tightness-good";
+  } else if (marginSeconds >= 60) {
+    tightText = "Gul: Rimlig marginal, " + formatMargin(marginSeconds) + " utöver paketet.";
+    tightClass += " tightness-medium";
+  } else if (marginSeconds >= 0) {
+    tightText = "Orange: Väldigt tight, bara " + formatMargin(marginSeconds) + " kvar utöver paketet.";
+    tightClass += " tightness-low";
+  } else {
+    tightText = "Röd: Paketet är längre än pausen, " + formatMargin(marginSeconds) + ". Du kommer bli sen om du kör allt.";
+    tightClass += " tightness-bad";
+  }
+
+  tightnessDiv.textContent = tightText;
+  tightnessDiv.className = tightClass;
+
+  document.getElementById("output").style.display = "block";
+
+  if (onAirTimer) clearInterval(onAirTimer);
+  if (periodTimer) clearInterval(periodTimer);
+
+  function updateCountdowns() {
+    const now = new Date();
+    const nowSeconds =
+      now.getHours() * 3600 +
+      now.getMinutes() * 60 +
+      now.getSeconds();
+
+    document.getElementById("countdownOnAir").textContent =
+      "Till sändningsstart: " + diffToCountdownString(onAirSeconds - nowSeconds);
+
+    document.getElementById("countdownPeriod").textContent =
+      "Till periodstart: " + diffToCountdownString(periodStartSeconds - nowSeconds);
+  }
+
+  updateCountdowns();
+  onAirTimer = setInterval(updateCountdowns, 1000);
+  periodTimer = onAirTimer; // vi återanvänder samma timer
+  saveState();
+}
+
+
+/* ---------- INIT OCH EVENTLYSSNARE ---------- */
+
+loadState();
+
+[
+  "preset",
+  "periodEnd",
+  "pauseMinutes",
+  "billboard",
+  "highlights",
+  "talk",
+  "interviewHome",
+  "interviewAway",
+  "manualOnAir"
+].forEach((id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const evt = el.tagName === "SELECT" || el.type === "number" ? "change" : "input";
+  el.addEventListener(evt, () => {
+    if (id === "interviewHome" || id === "interviewAway") {
+      updateInterviewTotal();
+    }
+    saveState();
   });
-
-  const setNowBtn = document.getElementById("setNowBtn");
-  if (setNowBtn) {
-    setNowBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const now = new Date();
-      const h = String(now.getHours()).padStart(2, "0");
-      const m = String(now.getMinutes()).padStart(2, "0");
-      const s = String(now.getSeconds()).padStart(2, "0");
-      document.getElementById("periodEnd").value = `${h}:${m}:${s}`;
-      saveState();
-    });
-  }
-
-  const calcBtn = document.getElementById("calcBtn");
-  if (calcBtn) {
-    calcBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      calculate();
-      saveState();
-    });
-  }
 });
+
+
+document.getElementById("setNowBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  setPeriodEndToNow();
+});
+
+document.getElementById("calcBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  calculate();
+});
+
+
+
