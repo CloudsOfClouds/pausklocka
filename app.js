@@ -266,9 +266,16 @@ function calculate() {
   const resultLinesEl = document.getElementById("resultLines");
   if (!resultLinesEl) return;
 
+  // VISA resultatboxen när vi räknar
+  const outputBox = document.getElementById("output");
+  if (outputBox) {
+    outputBox.style.display = "block";
+  }
+
   resultLinesEl.innerHTML = "";
   const countdownOnAirEl = document.getElementById("countdownOnAir");
   const countdownPeriodEl = document.getElementById("countdownPeriod");
+
 
   if (onAirTimer) {
     clearInterval(onAirTimer);
