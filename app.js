@@ -51,6 +51,9 @@ function startLiveClock() {
 
     document.getElementById("liveClock").textContent = `${h}:${m}:${s}`;
 
+    // Uppdatera manuell nedräkning till sändningsstart
+    updateManualOnAirCountdown();
+
     // Räkna ut exakt när nästa sekund börjar
     const msToNextSecond = 1000 - now.getMilliseconds();
     setTimeout(updateClock, msToNextSecond);
@@ -60,6 +63,7 @@ function startLiveClock() {
 }
 
 startLiveClock();
+
 
 
 
@@ -99,6 +103,42 @@ function formatMargin(seconds) {
   const s = abs % 60;
   return sign + m + " min " + String(s).padStart(2, "0") + " s";
 }
+
+function updateManualOnAirCountdown() {
+  const input = document.getElementById("manualOnAir");
+  const box = document.getElementById("manualOnAirBox");
+  const label = document.getElementById("manualOnAirCountdown");
+
+  if (!input || !box || !label) return;
+
+  // Om ingen tid är angiven: dölj boxen
+  if (!input.value) {
+    box.style.display = "none";
+    label.textContent = "";
+    return;
+  }
+
+  const targetSeconds = parseHHMMToSeconds(input.value);
+  if (targetSeconds === null) {
+    box.style.display = "none";
+    label.textContent = "";
+    return;
+  }
+
+  const now = new Date();
+  const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const diff = targetSeconds - nowSeconds;
+
+  box.style.display = "block";
+
+  if (diff <= 0) {
+    label.textContent = "Nedräkning till sändningsstart: Nu";
+  } else {
+    label.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+  }
+}
+
 
 /* ---------- PRESETS ---------- */
 
@@ -162,13 +202,15 @@ function saveState() {
       highlights: document.getElementById("highlights").value,
       talk: document.getElementById("talk").value,
       interviewHome: document.getElementById("interviewHome").value,
-      interviewAway: document.getElementById("interviewAway").value
+      interviewAway: document.getElementById("interviewAway").value,
+      manualOnAir: document.getElementById("manualOnAir").value
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn("Kunde inte spara state", e);
   }
 }
+
 
 function loadState() {
   try {
@@ -203,12 +245,16 @@ function loadState() {
     if (state.interviewAway !== undefined) {
       document.getElementById("interviewAway").value = state.interviewAway;
     }
+    if (state.manualOnAir !== undefined) {
+      document.getElementById("manualOnAir").value = state.manualOnAir;
+    }
 
     updateInterviewTotal();
   } catch (e) {
     console.warn("Kunde inte läsa state", e);
   }
 }
+
 
 /* ---------- HUVUDKALKYL ---------- */
 
@@ -309,7 +355,8 @@ loadState();
   "highlights",
   "talk",
   "interviewHome",
-  "interviewAway"
+  "interviewAway",
+  "manualOnAir"
 ].forEach((id) => {
   const el = document.getElementById(id);
   if (!el) return;
@@ -321,6 +368,7 @@ loadState();
     saveState();
   });
 });
+
 
 document.getElementById("setNowBtn").addEventListener("click", (e) => {
   e.preventDefault();
