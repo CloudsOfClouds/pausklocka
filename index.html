@@ -2,100 +2,153 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <title>Pausklocka</title>
+  <title>Pausplanerare</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <h1>Pausplanerare</h1>
+  <div class="app">
+    <h1>Pausplanerare</h1>
 
-  <!-- Liveklocka -->
-  <div id="liveClock" class="live-clock">
-    --:--:--
-  </div>
-
-  <!-- Manuell nedräkning till sändningsstart + billboard -->
-  <div class="field">
-    <label for="manualOnAir">Sändningsstart (HH:MM)</label>
-    <input type="time" id="manualOnAir" />
-  </div>
-
-  <div class="output" id="manualOnAirBox" style="display:none;">
-    <div class="countdown" id="manualOnAirCountdown"></div>
-    <div class="countdown" id="manualBillboardCountdown"></div>
-  </div>
-  <!-- Slut manuell nedräkning -->
-
-  <div class="field">
-    <label for="preset">Sport / preset</label>
-    <select id="preset">
-      <option value="">Ingen preset</option>
-      <option value="hockey_18">Hockey 18 min period</option>
-      <option value="hockey_20">Hockey 20 min period</option>
-      <option value="football_45">Fotboll 45 min halvlek</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
-    <div class="inline-group">
-      <input type="text" id="periodEnd" placeholder="HH:MM:SS" inputmode="text" pattern="[0-9:]*" />
-      <button id="setNowBtn">Nu</button>
-    </div>
-  </div>
-
-  <div class="field">
-    <label for="pauseMinutes">Pauslängd (mm:ss)</label>
-    <input type="text" id="pauseMinutes" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
-  </div>
-
-  <div class="field">
-    <label for="billboard">Billboard + vinjett (mm:ss)</label>
-    <input type="text" id="billboard" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
-  </div>
-
-  <div class="field">
-    <label for="highlights">Höjdpunkter (mm:ss)</label>
-    <input type="text" id="highlights" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
-  </div>
-
-  <div class="field">
-    <label for="talk">Extra prat (mm:ss)</label>
-    <input type="text" id="talk" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
-  </div>
-
-  <fieldset class="field">
-    <legend>Intervjutider hemmalag / bortalag</legend>
-
-    <div class="field">
-      <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
-      <input type="text" id="interviewHome" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
+    <!-- Liveklocka -->
+    <div id="liveClock" class="live-clock">
+      --:--:--
     </div>
 
-    <div class="field">
-      <label for="interviewAway">Intervju bortalag (mm:ss)</label>
-      <input type="text" id="interviewAway" placeholder="mm:ss" inputmode="text" pattern="[0-9:]*" />
-    </div>
+    <!-- Manuell nedräkning till sändningsstart + billboard -->
+    <section class="card">
+      <h2>Sändningsstart</h2>
 
-    <div class="output">
-      <strong>Totalt intervjupaket:</strong>
-      <span id="interviewTotal">0:00</span>
-    </div>
-  </fieldset>
+      <div class="field">
+        <label for="manualOnAir">Sändningsstart (HH:MM)</label>
+        <input type="time" id="manualOnAir" />
+      </div>
 
-  <div class="actions">
-    <button id="calcBtn">Räkna ut tider</button>
-  </div>
+      <div class="output" id="manualOnAirBox" style="display:none;">
+        <div class="countdown" id="manualOnAirCountdown"></div>
+        <div class="countdown" id="manualBillboardCountdown"></div>
+      </div>
+    </section>
 
-  <div class="output" id="output">
-    <div id="resultLines"></div>
-    <div id="tightness" class="tightness"></div>
-    <div class="countdown" id="countdownOnAir"></div>
-    <div class="countdown" id="countdownPeriod"></div>
-    <div class="small">
-      Alla tider är lokal tid. Du kan runda av till hel minut i körschemat.
-    </div>
+    <section class="card">
+      <h2>Pausinställningar</h2>
+
+      <div class="field">
+        <label for="preset">Sport / preset</label>
+        <select id="preset">
+          <option value="">Ingen preset</option>
+          <option value="hockey_18">Hockey 18 min period</option>
+          <option value="hockey_20">Hockey 20 min period</option>
+          <option value="football_45">Fotboll 45 min halvlek</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
+        <div class="inline-group">
+          <input
+            type="text"
+            id="periodEnd"
+            placeholder="HH:MM:SS"
+            inputmode="text"
+            pattern="[0-9:]*"
+          />
+          <button id="setNowBtn">Nu</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pauseMinutes">Pauslängd (mm:ss)</label>
+        <input
+          type="text"
+          id="pauseMinutes"
+          placeholder="mm:ss"
+          inputmode="text"
+          pattern="[0-9:]*"
+        />
+      </div>
+
+      <div class="field">
+        <label for="billboard">Billboard + vinjett (mm:ss)</label>
+        <input
+          type="text"
+          id="billboard"
+          placeholder="mm:ss"
+          inputmode="text"
+          pattern="[0-9:]*"
+        />
+      </div>
+
+      <div class="field">
+        <label for="highlights">Höjdpunkter (mm:ss)</label>
+        <input
+          type="text"
+          id="highlights"
+          placeholder="mm:ss"
+          inputmode="text"
+          pattern="[0-9:]*"
+        />
+      </div>
+
+      <div class="field">
+        <label for="talk">Extra prat (mm:ss)</label>
+        <input
+          type="text"
+          id="talk"
+          placeholder="mm:ss"
+          inputmode="text"
+          pattern="[0-9:]*"
+        />
+      </div>
+
+      <fieldset class="field">
+        <legend>Intervjutider hemmalag / bortalag</legend>
+
+        <div class="field">
+          <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
+          <input
+            type="text"
+            id="interviewHome"
+            placeholder="mm:ss"
+            inputmode="text"
+            pattern="[0-9:]*"
+          />
+        </div>
+
+        <div class="field">
+          <label for="interviewAway">Intervju bortalag (mm:ss)</label>
+          <input
+            type="text"
+            id="interviewAway"
+            placeholder="mm:ss"
+            inputmode="text"
+            pattern="[0-9:]*"
+          />
+        </div>
+
+        <div class="output">
+          <strong>Totalt intervjupaket:</strong>
+          <span id="interviewTotal">0:00</span>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button id="calcBtn">Räkna ut tider</button>
+      </div>
+    </section>
+
+    <section class="card output-card" id="output" style="display:none;">
+      <div id="resultLines"></div>
+      <div id="tightness" class="tightness"></div>
+
+      <div class="countdown" id="countdownOnAir"></div>
+      <div class="countdown" id="countdownPeriod"></div>
+
+      <p class="small">
+        Alla tider är lokal tid. Du kan runda av till hel minut i körschemat.
+      </p>
+    </section>
   </div>
 
   <script src="app.js"></script>
