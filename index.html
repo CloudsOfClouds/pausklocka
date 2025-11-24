@@ -59,15 +59,30 @@
       </div>
 
       <div class="field">
-        <label for="pauseMinutes">Pauslängd (mm:ss)</label>
-        <input
-          type="text"
-          id="pauseMinutes"
-          placeholder="mm:ss"
-          inputmode="text"
-          pattern="[0-9:]*"
-        />
+  <label>Pauslängd</label>
+  <div class="inline-group pause-row">
+    <div class="pause-col">
+      <div class="pause-label">Schema</div>
+      <input
+        type="text"
+        id="pauseMinutes"
+        placeholder="mm:ss"
+        inputmode="text"
+        pattern="[0-9:]*"
+      />
+    </div>
+
+    <div class="pause-col">
+      <div class="pause-label">Aktuell</div>
+      <div class="pause-actual">
+        <button id="openPausePicker" type="button">Ställ in</button>
+        <span id="pauseOverrideDisplay" class="pause-display">–:–</span>
+        <input type="hidden" id="pauseOverride" />
       </div>
+    </div>
+  </div>
+</div>
+
 
       <div class="field">
         <label for="billboard">Billboard + vinjett (mm:ss)</label>
@@ -151,6 +166,27 @@
       </p>
     </section>
   </div>
+
+  <div id="pausePickerOverlay" class="timepicker-overlay" style="display:none;">
+  <div class="timepicker-box">
+    <div class="timepicker-title">Välj paustid</div>
+    <div class="timepicker-scrolls">
+      <select id="pausePickerMinutes"></select>
+      <span>min</span>
+      <select id="pausePickerSeconds"></select>
+      <span>sek</span>
+    </div>
+    <div class="timepicker-actions">
+      <button id="pausePickerCancel" type="button" class="secondary-btn">
+        Avbryt
+      </button>
+      <button id="pausePickerSet" type="button">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
 
   <script src="app.js"></script>
 </body>
