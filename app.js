@@ -620,7 +620,6 @@ function initPausePicker() {
   });
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
   loadState();
   startLiveClock();
@@ -633,10 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
       saveState();
     });
   }
-
-  // hela den andra koden fortsätter som vanligt här
-});
-
 
   [
     "periodEnd",
