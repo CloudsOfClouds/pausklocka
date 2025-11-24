@@ -301,3 +301,89 @@ button:active {
     font-size: 1.4rem;
   }
 }
+
+/* Pausrad med två kolumner */
+
+.pause-row {
+  align-items: stretch;
+}
+
+.pause-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pause-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.pause-actual {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pause-display {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  min-width: 2.7rem;
+  text-align: right;
+}
+
+/* Overlay för scrollklockan */
+
+.timepicker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.timepicker-box {
+  background: #020617;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  width: 100%;
+  max-width: 320px;
+}
+
+.timepicker-title {
+  font-size: 1rem;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+
+.timepicker-scrolls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.timepicker-scrolls select {
+  padding: 0.3rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timepicker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
