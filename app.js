@@ -678,20 +678,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const resetBtn = document.getElementById("resetBtn");
   if (resetBtn) {
-    resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      resetPreviousPeriod();
-      
-      // Nollställ scrollklockan (aktuell paus)
-      const pauseOverride = document.getElementById("pauseOverride");
-      const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
+  resetBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    resetPreviousPeriod();
 
-      if (pauseOverride) pauseOverride.value = "";
-      if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
+    // 1) Nollställ intervjutider
+    const interviewHome = document.getElementById("interviewHome");
+    const interviewAway = document.getElementById("interviewAway");
 
-      saveState();
-    });
-  }
+    if (interviewHome) interviewHome.value = "";
+    if (interviewAway) interviewAway.value = "";
+
+    if (typeof updateInterviewTotal === "function") {
+      updateInterviewTotal();
+    }
+
+    // 2) Nollställ manuell sändningsstart
+    const manualOnAir = document.getElementById("manualOnAir");
+    if (manualOnAir) manualOnAir.value = "";
+
+    // Återställ logiken för manuella nedräkningen
+    if (typeof updateManualOnAirCountdown === "function") {
+      manualPhase = "before";
+      manualBillboardEndSeconds = null;
+      updateManualOnAirCountdown();
+    }
+
+    // 3) Nollställ scrollklockan (aktuell paus)
+    const pauseOverride = document.getElementById("pauseOverride");
+    const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
+
+    if (pauseOverride) pauseOverride.value = "";
+    if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
+
+    // 4) Spara nya “tomma” värden
+    saveState();
+  });
+}
+
 
   const calcBtn = document.getElementById("calcBtn");
   if (calcBtn) {
