@@ -350,7 +350,12 @@ function calculate() {
   resultLinesEl.innerHTML = "";
 
   const periodEndStr = document.getElementById("periodEnd").value;
-  const pauseStr = document.getElementById("pauseMinutes").value || "";
+  const pauseOfficialStr =
+    document.getElementById("pauseMinutes").value || "";
+  const pauseOverrideStr =
+    document.getElementById("pauseOverride").value || "";
+  const pauseStr = pauseOverrideStr || pauseOfficialStr;
+
   const billboardStr = document.getElementById("billboard").value || "";
   const highlightsStr = document.getElementById("highlights").value || "";
   const talkStr = document.getElementById("talk").value || "";
@@ -462,6 +467,7 @@ function saveState() {
       preset: document.getElementById("preset")?.value || "",
       periodEnd: document.getElementById("periodEnd")?.value || "",
       pauseMinutes: document.getElementById("pauseMinutes")?.value || "",
+      pauseOverride: document.getElementById("pauseOverride")?.value || "",
       billboard: document.getElementById("billboard")?.value || "",
       highlights: document.getElementById("highlights")?.value || "",
       talk: document.getElementById("talk")?.value || "",
@@ -517,6 +523,12 @@ function loadState() {
       const el = document.getElementById("manualOnAir");
       if (el) el.value = state.manualOnAir;
     }
+    if (state.pauseOverride !== undefined) {
+      const el = document.getElementById("pauseOverride");
+      const disp = document.getElementById("pauseOverrideDisplay");
+      if (el) el.value = state.pauseOverride;
+      if (disp) disp.textContent = state.pauseOverride || "–:–";
+    }
 
     updateInterviewTotal();
     updateManualOnAirCountdown();
@@ -526,10 +538,93 @@ function loadState() {
 }
 
 /* ---------- INIT ---------- */
+function initPausePicker() {
+  const overlay = document.getElementById("pausePickerOverlay");
+  const btnOpen = document.getElementById("openPausePicker");
+  const btnCancel = document.getElementById("pausePickerCancel");
+  const btnSet = document.getElementById("pausePickerSet");
+  const selMin = document.getElementById("pausePickerMinutes");
+  const selSec = document.getElementById("pausePickerSeconds");
+  const hiddenInput = document.getElementById("pauseOverride");
+  const display = document.getElementById("pauseOverrideDisplay");
+  const officialInput = document.getElementById("pauseMinutes");
+
+  if (
+    !overlay ||
+    !btnOpen ||
+    !btnCancel ||
+    !btnSet ||
+    !selMin ||
+    !selSec ||
+    !hiddenInput ||
+    !display
+  ) {
+    return;
+  }
+
+  // Fyll med 0–30 minuter
+  selMin.innerHTML = "";
+  for (let m = 0; m <= 30; m++) {
+    const opt = document.createElement("option");
+    opt.value = String(m);
+    opt.textContent = String(m).padStart(2, "0");
+    selMin.appendChild(opt);
+  }
+
+  // Fyll med 0–59 sekunder
+  selSec.innerHTML = "";
+  for (let s = 0; s < 60; s++) {
+    const opt = document.createElement("option");
+    opt.value = String(s);
+    opt.textContent = String(s).padStart(2, "0");
+    selSec.appendChild(opt);
+  }
+
+  function openWithCurrentValue() {
+    let baseStr =
+      hiddenInput.value ||
+      officialInput?.value ||
+      "15:00";
+
+    baseStr = baseStr.trim().replace(",", ":").replace(".", ":");
+    const parts = baseStr.split(":").map((p) => Number(p));
+    let m = 0;
+    let s = 0;
+    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
+      m = parts[0];
+      s = parts[1];
+    }
+
+    selMin.value = String(Math.min(Math.max(m, 0), 30));
+    selSec.value = String(Math.min(Math.max(s, 0), 59));
+
+    overlay.style.display = "flex";
+  }
+
+  btnOpen.addEventListener("click", () => {
+    openWithCurrentValue();
+  });
+
+  btnCancel.addEventListener("click", () => {
+    overlay.style.display = "none";
+  });
+
+  btnSet.addEventListener("click", () => {
+    const m = Number(selMin.value);
+    const s = Number(selSec.value);
+    const str = `${m}:${String(s).padStart(2, "0")}`;
+    hiddenInput.value = str;
+    display.textContent = str;
+    overlay.style.display = "none";
+    saveState();
+  });
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   loadState();
   startLiveClock();
+  initPausePicker();
 
   const presetSelect = document.getElementById("preset");
   if (presetSelect) {
@@ -538,6 +633,10 @@ document.addEventListener("DOMContentLoaded", () => {
       saveState();
     });
   }
+
+  // hela den andra koden fortsätter som vanligt här
+});
+
 
   [
     "periodEnd",
