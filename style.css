@@ -52,7 +52,8 @@ h2 {
   margin: 0 0 0.8rem 0;
   font-size: 1.1rem;
   color: #e5e7eb;
-}
+  text-align: center;
+ }
 
 /* Kort / sektioner */
 
@@ -63,7 +64,8 @@ h2 {
   margin-bottom: 1rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(148, 163, 184, 0.28);
-}
+  text-align: center;
+ }
 
 .output-card {
   margin-top: 0.5rem;
