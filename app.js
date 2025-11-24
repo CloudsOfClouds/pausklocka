@@ -681,6 +681,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resetBtn.addEventListener("click", (e) => {
       e.preventDefault();
       resetPreviousPeriod();
+      
+      // Nollställ scrollklockan (aktuell paus)
+      const pauseOverride = document.getElementById("pauseOverride");
+      const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
+
+      if (pauseOverride) pauseOverride.value = "";
+      if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
+
       saveState();
     });
   }
@@ -694,3 +702,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
