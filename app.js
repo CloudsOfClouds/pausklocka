@@ -201,8 +201,7 @@ function updateManualOnAirCountdown() {
       }
     } else {
       labelBillboard.textContent =
-        "Nedräkning billboard + vinjett: " +
-        diffToCountdownString(remaining);
+        "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
       if (card) {
         // Pulsera hela kortet medan billboard rullar
         card.classList.add("card-alert-danger");
@@ -537,7 +536,7 @@ function loadState() {
   }
 }
 
-/* ---------- INIT ---------- */
+/* ---------- SCROLLKLOCKA FÖR PAUS ---------- */
 function initPausePicker() {
   const overlay = document.getElementById("pausePickerOverlay");
   const btnOpen = document.getElementById("openPausePicker");
@@ -620,10 +619,122 @@ function initPausePicker() {
   });
 }
 
+/* ---------- NY SCROLLKLOCKA FÖR SÄNDNINGSSTART ---------- */
+
+function initManualOnAirPicker() {
+  const overlay = document.getElementById("manualOnAirPickerOverlay");
+  const btnOpen = document.getElementById("openManualOnAirPicker");
+  const btnCancel = document.getElementById("manualOnAirPickerCancel");
+  const btnSet = document.getElementById("manualOnAirPickerSet");
+  const selH = document.getElementById("manualOnAirPickerHours");
+  const selM = document.getElementById("manualOnAirPickerMinutes");
+  const selS = document.getElementById("manualOnAirPickerSeconds");
+  const input = document.getElementById("manualOnAir");
+
+  if (
+    !overlay ||
+    !btnOpen ||
+    !btnCancel ||
+    !btnSet ||
+    !selH ||
+    !selM ||
+    !selS ||
+    !input
+  ) {
+    return;
+  }
+
+  // 0–23 timmar
+  selH.innerHTML = "";
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement("option");
+    opt.value = String(h);
+    opt.textContent = String(h).padStart(2, "0");
+    selH.appendChild(opt);
+  }
+
+  // 0–59 minuter
+  selM.innerHTML = "";
+  for (let m = 0; m < 60; m++) {
+    const opt = document.createElement("option");
+    opt.value = String(m);
+    opt.textContent = String(m).padStart(2, "0");
+    selM.appendChild(opt);
+  }
+
+  // 0–59 sekunder
+  selS.innerHTML = "";
+  for (let s = 0; s < 60; s++) {
+    const opt = document.createElement("option");
+    opt.value = String(s);
+    opt.textContent = String(s).padStart(2, "0");
+    selS.appendChild(opt);
+  }
+
+  function openWithCurrentValue() {
+    let baseStr = input.value;
+
+    if (!baseStr) {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      baseStr = `${h}:${m}:${s}`;
+    }
+
+    baseStr = baseStr.trim();
+    const parts = baseStr.split(":").map((p) => Number(p));
+    let h = 0;
+    let m = 0;
+    let s = 0;
+
+    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
+      h = parts[0];
+      m = parts[1];
+      s = parts[2] ?? 0;
+    }
+
+    selH.value = String(Math.min(Math.max(h, 0), 23));
+    selM.value = String(Math.min(Math.max(m, 0), 59));
+    selS.value = String(Math.min(Math.max(s, 0), 59));
+
+    overlay.style.display = "flex";
+  }
+
+  btnOpen.addEventListener("click", () => {
+    openWithCurrentValue();
+  });
+
+  btnCancel.addEventListener("click", () => {
+    overlay.style.display = "none";
+  });
+
+  btnSet.addEventListener("click", () => {
+    const h = Number(selH.value);
+    const m = Number(selM.value);
+    const s = Number(selS.value);
+
+    const hStr = String(h).padStart(2, "0");
+    const mStr = String(m).padStart(2, "0");
+    const sStr = String(s).padStart(2, "0");
+
+    input.value = `${hStr}:${mStr}:${sStr}`;
+    overlay.style.display = "none";
+
+    manualPhase = "before";
+    manualBillboardEndSeconds = null;
+    updateManualOnAirCountdown();
+    saveState();
+  });
+}
+
+/* ---------- INIT ---------- */
+
 document.addEventListener("DOMContentLoaded", () => {
   loadState();
   startLiveClock();
   initPausePicker();
+  initManualOnAirPicker();
 
   const presetSelect = document.getElementById("preset");
   if (presetSelect) {
@@ -678,44 +789,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const resetBtn = document.getElementById("resetBtn");
   if (resetBtn) {
-  resetBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    resetPreviousPeriod();
+    resetBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetPreviousPeriod();
+      
+      // Nollställ scrollklockan (aktuell paus)
+      const pauseOverride = document.getElementById("pauseOverride");
+      const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
 
-    // 1) Nollställ intervjutider
-    const interviewHome = document.getElementById("interviewHome");
-    const interviewAway = document.getElementById("interviewAway");
+      if (pauseOverride) pauseOverride.value = "";
+      if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
 
-    if (interviewHome) interviewHome.value = "";
-    if (interviewAway) interviewAway.value = "";
-
-    if (typeof updateInterviewTotal === "function") {
-      updateInterviewTotal();
-    }
-
-    // 2) Nollställ manuell sändningsstart
-    const manualOnAir = document.getElementById("manualOnAir");
-    if (manualOnAir) manualOnAir.value = "";
-
-    // Återställ logiken för manuella nedräkningen
-    if (typeof updateManualOnAirCountdown === "function") {
-      manualPhase = "before";
-      manualBillboardEndSeconds = null;
-      updateManualOnAirCountdown();
-    }
-
-    // 3) Nollställ scrollklockan (aktuell paus)
-    const pauseOverride = document.getElementById("pauseOverride");
-    const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
-
-    if (pauseOverride) pauseOverride.value = "";
-    if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
-
-    // 4) Spara nya “tomma” värden
-    saveState();
-  });
-}
-
+      saveState();
+    });
+  }
 
   const calcBtn = document.getElementById("calcBtn");
   if (calcBtn) {
@@ -726,5 +813,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-
