@@ -16,7 +16,7 @@
       --:--:--
     </div>
 
-    <!-- Manuell nedräkning till sändningsstart + billboard -->
+    <!-- Manuell nedräkning till sändningsstart + billboard + pratfönster -->
     <section class="card" id="manualOnAirCard">
       <h2>Sändningsstart</h2>
 
@@ -28,9 +28,19 @@
         </div>
       </div>
 
+      <div class="field">
+        <label for="manualMatchStart">Matchstart / nedsläpp (HH:MM:SS)</label>
+        <div class="inline-group">
+          <input type="time" id="manualMatchStart" step="1" />
+          <button id="openManualMatchStartPicker" type="button">Ställ in</button>
+        </div>
+      </div>
+
       <div class="output" id="manualOnAirBox" style="display:none;">
         <div class="countdown" id="manualOnAirCountdown"></div>
         <div class="countdown" id="manualBillboardCountdown"></div>
+        <div class="countdown" id="manualTalkWindow"></div>
+        <div class="countdown" id="manualMatchCountdown"></div>
       </div>
     </section>
 
@@ -169,7 +179,7 @@
     </section>
   </div>
 
-  <!-- Scrollklocka för paus (finns sedan tidigare) -->
+  <!-- Scrollklocka för paus -->
   <div id="pausePickerOverlay" class="timepicker-overlay" style="display:none;">
     <div class="timepicker-box">
       <div class="timepicker-title">Välj paustid</div>
@@ -190,7 +200,7 @@
     </div>
   </div>
 
-  <!-- Ny scrollklocka för Sändningsstart (HH:MM:SS) -->
+  <!-- Scrollklocka för Sändningsstart (HH:MM:SS) -->
   <div
     id="manualOnAirPickerOverlay"
     class="timepicker-overlay"
@@ -215,6 +225,37 @@
           Avbryt
         </button>
         <button id="manualOnAirPickerSet" type="button">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrollklocka för Matchstart (HH:MM:SS) -->
+  <div
+    id="manualMatchStartPickerOverlay"
+    class="timepicker-overlay"
+    style="display:none;"
+  >
+    <div class="timepicker-box">
+      <div class="timepicker-title">Välj matchstart / nedsläpp</div>
+      <div class="timepicker-scrolls">
+        <select id="manualMatchStartPickerHours"></select>
+        <span>h</span>
+        <select id="manualMatchStartPickerMinutes"></select>
+        <span>min</span>
+        <select id="manualMatchStartPickerSeconds"></select>
+        <span>sek</span>
+      </div>
+      <div class="timepicker-actions">
+        <button
+          id="manualMatchStartPickerCancel"
+          type="button"
+          class="secondary-btn"
+        >
+          Avbryt
+        </button>
+        <button id="manualMatchStartPickerSet" type="button">
           OK
         </button>
       </div>
