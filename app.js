@@ -96,17 +96,30 @@ function startLiveClock() {
 /**
  * 1) Nedräkning till sändningsstart (manualOnAir)
  * 2) När noll: nedräkning på billboard + vinjett
- *    Puls på kortet bara medan billboard rullar
+ * 3) Statisk pratfönster mellan sändningsstart och matchstart
+ *    efter billboard + intervjuer
+ * 4) Nedräkning till matchstart
  */
 function updateManualOnAirCountdown() {
   const input = document.getElementById("manualOnAir");
+  const matchInput = document.getElementById("manualMatchStart");
   const box = document.getElementById("manualOnAirBox");
   const labelOnAir = document.getElementById("manualOnAirCountdown");
   const labelBillboard = document.getElementById("manualBillboardCountdown");
+  const talkWindowEl = document.getElementById("manualTalkWindow");
+  const matchCountdownEl = document.getElementById("manualMatchCountdown");
   const billboardInput = document.getElementById("billboard");
   const card = document.getElementById("manualOnAirCard");
 
-  if (!input || !box || !labelOnAir || !labelBillboard || !billboardInput) {
+  if (
+    !input ||
+    !box ||
+    !labelOnAir ||
+    !labelBillboard ||
+    !billboardInput ||
+    !talkWindowEl ||
+    !matchCountdownEl
+  ) {
     return;
   }
 
@@ -115,9 +128,13 @@ function updateManualOnAirCountdown() {
     card.classList.remove("card-alert-danger");
   }
   labelOnAir.classList.remove("countdown-danger");
+  matchCountdownEl.classList.remove("countdown-danger");
+  talkWindowEl.textContent = "";
+  matchCountdownEl.textContent = "";
 
   const manualValue = input.value;
   const billboardStr = billboardInput.value;
+  const matchValue = matchInput ? matchInput.value : "";
 
   // Inget manuellt klockslag
   if (!manualValue) {
@@ -126,10 +143,6 @@ function updateManualOnAirCountdown() {
     labelBillboard.textContent = "";
     manualPhase = "before";
     manualBillboardEndSeconds = null;
-    if (card) {
-      card.classList.remove("card-alert-danger");
-    }
-    labelOnAir.classList.remove("countdown-danger");
     return;
   }
 
@@ -140,10 +153,6 @@ function updateManualOnAirCountdown() {
     labelBillboard.textContent = "";
     manualPhase = "before";
     manualBillboardEndSeconds = null;
-    if (card) {
-      card.classList.remove("card-alert-danger");
-    }
-    labelOnAir.classList.remove("countdown-danger");
     return;
   }
 
@@ -161,60 +170,104 @@ function updateManualOnAirCountdown() {
     labelOnAir.textContent =
       "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
     labelBillboard.textContent = "";
-    return;
-  }
-
-  // Sista 15 sekunderna: gör klockan röd
-  if (diff > 0) {
+  } else if (diff > 0) {
+    // Sista 15 sekunderna: gör klockan röd
     manualPhase = "before";
     manualBillboardEndSeconds = null;
     labelOnAir.textContent =
       "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
     labelOnAir.classList.add("countdown-danger");
     labelBillboard.textContent = "";
-    return;
-  }
-
-  // Vid eller efter sändningsstart
-  if (manualPhase === "before") {
-    const billboardSeconds = parseDurationToSeconds(billboardStr);
-    if (billboardSeconds > 0) {
-      manualBillboardEndSeconds = nowSeconds + billboardSeconds;
-      manualPhase = "billboard";
-    } else {
-      manualPhase = "done";
+  } else {
+    // Vid eller efter sändningsstart
+    if (manualPhase === "before") {
+      const billboardSeconds = parseDurationToSeconds(billboardStr);
+      if (billboardSeconds > 0) {
+        manualBillboardEndSeconds = nowSeconds + billboardSeconds;
+        manualPhase = "billboard";
+      } else {
+        manualPhase = "done";
+      }
     }
-  }
 
-  labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
-  labelOnAir.classList.add("countdown-danger");
+    labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
+    labelOnAir.classList.add("countdown-danger");
 
-  // Billboardfas
-  if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
-    const remaining = manualBillboardEndSeconds - nowSeconds;
+    // Billboardfas
+    if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
+      const remaining = manualBillboardEndSeconds - nowSeconds;
 
-    if (remaining <= 0) {
-      manualPhase = "done";
-      labelBillboard.textContent = "Billboard + vinjett: Klar";
+      if (remaining <= 0) {
+        manualPhase = "done";
+        labelBillboard.textContent = "Billboard + vinjett: Klar";
+        if (card) {
+          card.classList.remove("card-alert-danger");
+        }
+      } else {
+        labelBillboard.textContent =
+          "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
+        if (card) {
+          // Pulsera hela kortet medan billboard rullar
+          card.classList.add("card-alert-danger");
+        }
+      }
+    } else if (manualPhase === "done") {
+      if (billboardStr && parseDurationToSeconds(billboardStr) > 0) {
+        labelBillboard.textContent = "Billboard + vinjett: Klar";
+      } else {
+        labelBillboard.textContent = "";
+      }
       if (card) {
         card.classList.remove("card-alert-danger");
       }
-    } else {
-      labelBillboard.textContent =
-        "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
-      if (card) {
-        // Pulsera hela kortet medan billboard rullar
-        card.classList.add("card-alert-danger");
-      }
     }
-  } else if (manualPhase === "done") {
-    if (billboardStr && parseDurationToSeconds(billboardStr) > 0) {
-      labelBillboard.textContent = "Billboard + vinjett: Klar";
+  }
+
+  // Nedräkning till matchstart
+  let matchSeconds = null;
+  if (matchValue) {
+    matchSeconds = parseClockToSeconds(matchValue);
+  }
+
+  if (matchSeconds !== null) {
+    const diffMatch = matchSeconds - nowSeconds;
+    if (diffMatch > 15) {
+      matchCountdownEl.textContent =
+        "Nedräkning till matchstart: " + diffToCountdownString(diffMatch);
+    } else if (diffMatch > 0) {
+      matchCountdownEl.textContent =
+        "Nedräkning till matchstart: " + diffToCountdownString(diffMatch);
+      matchCountdownEl.classList.add("countdown-danger");
     } else {
-      labelBillboard.textContent = "";
+      matchCountdownEl.textContent = "Nedräkning till matchstart: Nu";
+      matchCountdownEl.classList.add("countdown-danger");
     }
-    if (card) {
-      card.classList.remove("card-alert-danger");
+  } else {
+    matchCountdownEl.textContent = "";
+  }
+
+  // Statisk pratfönster mellan sändningsstart och matchstart
+  if (matchSeconds !== null && matchSeconds > targetSeconds) {
+    const totalWindow = matchSeconds - targetSeconds; // hela fönstret från on-air till nedsläpp
+    const billboardSeconds = parseDurationToSeconds(billboardStr);
+
+    const interviewHomeStr =
+      document.getElementById("interviewHome")?.value || "";
+    const interviewAwayStr =
+      document.getElementById("interviewAway")?.value || "";
+    const interviewSeconds =
+      parseMMSS(interviewHomeStr) + parseMMSS(interviewAwayStr);
+
+    const afterBillboardAndInterviews =
+      totalWindow - (billboardSeconds + interviewSeconds);
+
+    if (afterBillboardAndInterviews <= 0) {
+      talkWindowEl.textContent =
+        "Tid för prat efter billboard + intervjuer: 0 s";
+    } else {
+      talkWindowEl.textContent =
+        "Tid för prat efter billboard + intervjuer: " +
+        secondsToCountdownString(afterBillboardAndInterviews);
     }
   }
 }
@@ -472,7 +525,9 @@ function saveState() {
       talk: document.getElementById("talk")?.value || "",
       interviewHome: document.getElementById("interviewHome")?.value || "",
       interviewAway: document.getElementById("interviewAway")?.value || "",
-      manualOnAir: document.getElementById("manualOnAir")?.value || ""
+      manualOnAir: document.getElementById("manualOnAir")?.value || "",
+      manualMatchStart:
+        document.getElementById("manualMatchStart")?.value || ""
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
@@ -521,6 +576,10 @@ function loadState() {
     if (state.manualOnAir !== undefined) {
       const el = document.getElementById("manualOnAir");
       if (el) el.value = state.manualOnAir;
+    }
+    if (state.manualMatchStart !== undefined) {
+      const el = document.getElementById("manualMatchStart");
+      if (el) el.value = state.manualMatchStart;
     }
     if (state.pauseOverride !== undefined) {
       const el = document.getElementById("pauseOverride");
@@ -619,7 +678,7 @@ function initPausePicker() {
   });
 }
 
-/* ---------- NY SCROLLKLOCKA FÖR SÄNDNINGSSTART ---------- */
+/* ---------- SCROLLKLOCKA FÖR SÄNDNINGSSTART ---------- */
 
 function initManualOnAirPicker() {
   const overlay = document.getElementById("manualOnAirPickerOverlay");
@@ -728,6 +787,113 @@ function initManualOnAirPicker() {
   });
 }
 
+/* ---------- SCROLLKLOCKA FÖR MATCHSTART ---------- */
+
+function initManualMatchStartPicker() {
+  const overlay = document.getElementById("manualMatchStartPickerOverlay");
+  const btnOpen = document.getElementById("openManualMatchStartPicker");
+  const btnCancel = document.getElementById("manualMatchStartPickerCancel");
+  const btnSet = document.getElementById("manualMatchStartPickerSet");
+  const selH = document.getElementById("manualMatchStartPickerHours");
+  const selM = document.getElementById("manualMatchStartPickerMinutes");
+  const selS = document.getElementById("manualMatchStartPickerSeconds");
+  const input = document.getElementById("manualMatchStart");
+
+  if (
+    !overlay ||
+    !btnOpen ||
+    !btnCancel ||
+    !btnSet ||
+    !selH ||
+    !selM ||
+    !selS ||
+    !input
+  ) {
+    return;
+  }
+
+  // 0–23 timmar
+  selH.innerHTML = "";
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement("option");
+    opt.value = String(h);
+    opt.textContent = String(h).padStart(2, "0");
+    selH.appendChild(opt);
+  }
+
+  // 0–59 minuter
+  selM.innerHTML = "";
+  for (let m = 0; m < 60; m++) {
+    const opt = document.createElement("option");
+    opt.value = String(m);
+    opt.textContent = String(m).padStart(2, "0");
+    selM.appendChild(opt);
+  }
+
+  // 0–59 sekunder
+  selS.innerHTML = "";
+  for (let s = 0; s < 60; s++) {
+    const opt = document.createElement("option");
+    opt.value = String(s);
+    opt.textContent = String(s).padStart(2, "0");
+    selS.appendChild(opt);
+  }
+
+  function openWithCurrentValue() {
+    let baseStr = input.value;
+
+    if (!baseStr) {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      baseStr = `${h}:${m}:${s}`;
+    }
+
+    baseStr = baseStr.trim();
+    const parts = baseStr.split(":").map((p) => Number(p));
+    let h = 0;
+    let m = 0;
+    let s = 0;
+
+    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
+      h = parts[0];
+      m = parts[1];
+      s = parts[2] ?? 0;
+    }
+
+    selH.value = String(Math.min(Math.max(h, 0), 23));
+    selM.value = String(Math.min(Math.max(m, 0), 59));
+    selS.value = String(Math.min(Math.max(s, 0), 59));
+
+    overlay.style.display = "flex";
+  }
+
+  btnOpen.addEventListener("click", () => {
+    openWithCurrentValue();
+  });
+
+  btnCancel.addEventListener("click", () => {
+    overlay.style.display = "none";
+  });
+
+  btnSet.addEventListener("click", () => {
+    const h = Number(selH.value);
+    const m = Number(selM.value);
+    const s = Number(selS.value);
+
+    const hStr = String(h).padStart(2, "0");
+    const mStr = String(m).padStart(2, "0");
+    const sStr = String(s).padStart(2, "0");
+
+    input.value = `${hStr}:${mStr}:${sStr}`;
+    overlay.style.display = "none";
+
+    updateManualOnAirCountdown();
+    saveState();
+  });
+}
+
 /* ---------- INIT ---------- */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -735,6 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startLiveClock();
   initPausePicker();
   initManualOnAirPicker();
+  initManualMatchStartPicker();
 
   const presetSelect = document.getElementById("preset");
   if (presetSelect) {
@@ -752,7 +919,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "talk",
     "interviewHome",
     "interviewAway",
-    "manualOnAir"
+    "manualOnAir",
+    "manualMatchStart"
   ].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -762,7 +930,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (id === "interviewHome" || id === "interviewAway") {
         updateInterviewTotal();
       }
-      if (id === "manualOnAir" || id === "billboard") {
+      if (
+        id === "manualOnAir" ||
+        id === "billboard" ||
+        id === "manualMatchStart" ||
+        id === "interviewHome" ||
+        id === "interviewAway"
+      ) {
         manualPhase = "before";
         manualBillboardEndSeconds = null;
         updateManualOnAirCountdown();
