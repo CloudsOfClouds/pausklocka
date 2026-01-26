@@ -27,7 +27,6 @@ function parseDurationToSeconds(str) {
   if (parts.some((n) => Number.isNaN(n))) return 0;
 
   if (parts.length === 1) {
-    // "5" -> 5 minuter
     return parts[0] * 60;
   }
   if (parts.length === 2) {
@@ -60,7 +59,7 @@ function diffToCountdownString(diffSeconds) {
 
 // Sekunder från midnatt -> HH:MM:SS
 function secondsToClock(totalSeconds) {
-  totalSeconds = ((totalSeconds % 86400) + 86400) % 86400; // wrap runt dygn
+  totalSeconds = ((totalSeconds % 86400) + 86400) % 86400;
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
@@ -85,6 +84,7 @@ function startLiveClock() {
     }
 
     updateManualOnAirCountdown();
+    updateCommentatorOnAirCountdown();
 
     const msToNextSecond = 1000 - now.getMilliseconds();
     setTimeout(updateClock, msToNextSecond);
@@ -123,7 +123,6 @@ function updateManualOnAirCountdown() {
     return;
   }
 
-  // Nollställ visuellt läge
   if (card) {
     card.classList.remove("card-alert-danger");
   }
@@ -136,7 +135,6 @@ function updateManualOnAirCountdown() {
   const billboardStr = billboardInput.value;
   const matchValue = matchInput ? matchInput.value : "";
 
-  // Inget manuellt klockslag
   if (!manualValue) {
     box.style.display = "none";
     labelOnAir.textContent = "";
@@ -163,7 +161,6 @@ function updateManualOnAirCountdown() {
 
   box.style.display = "block";
 
-  // Mer än 15 sek kvar: vanlig nedräkning
   if (diff > 15) {
     manualPhase = "before";
     manualBillboardEndSeconds = null;
@@ -171,7 +168,6 @@ function updateManualOnAirCountdown() {
       "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
     labelBillboard.textContent = "";
   } else if (diff > 0) {
-    // Sista 15 sekunderna: gör klockan röd
     manualPhase = "before";
     manualBillboardEndSeconds = null;
     labelOnAir.textContent =
@@ -179,7 +175,6 @@ function updateManualOnAirCountdown() {
     labelOnAir.classList.add("countdown-danger");
     labelBillboard.textContent = "";
   } else {
-    // Vid eller efter sändningsstart
     if (manualPhase === "before") {
       const billboardSeconds = parseDurationToSeconds(billboardStr);
       if (billboardSeconds > 0) {
@@ -193,7 +188,6 @@ function updateManualOnAirCountdown() {
     labelOnAir.textContent = "Nedräkning till sändningsstart: Nu";
     labelOnAir.classList.add("countdown-danger");
 
-    // Billboardfas
     if (manualPhase === "billboard" && manualBillboardEndSeconds !== null) {
       const remaining = manualBillboardEndSeconds - nowSeconds;
 
@@ -207,7 +201,6 @@ function updateManualOnAirCountdown() {
         labelBillboard.textContent =
           "Nedräkning billboard + vinjett: " + diffToCountdownString(remaining);
         if (card) {
-          // Pulsera hela kortet medan billboard rullar
           card.classList.add("card-alert-danger");
         }
       }
@@ -223,7 +216,6 @@ function updateManualOnAirCountdown() {
     }
   }
 
-  // Nedräkning till matchstart
   let matchSeconds = null;
   if (matchValue) {
     matchSeconds = parseClockToSeconds(matchValue);
@@ -246,9 +238,8 @@ function updateManualOnAirCountdown() {
     matchCountdownEl.textContent = "";
   }
 
-  // Statisk pratfönster mellan sändningsstart och matchstart
   if (matchSeconds !== null && matchSeconds > targetSeconds) {
-    const totalWindow = matchSeconds - targetSeconds; // hela fönstret från on-air till nedsläpp
+    const totalWindow = matchSeconds - targetSeconds;
     const billboardSeconds = parseDurationToSeconds(billboardStr);
 
     const interviewHomeStr =
@@ -269,6 +260,52 @@ function updateManualOnAirCountdown() {
         "Tid för prat efter billboard + intervjuer: " +
         secondsToCountdownString(afterBillboardAndInterviews);
     }
+  }
+}
+
+/* ---------- NY: KOMMENTATORNS SÄNDNINGSSTART ---------- ---------- */
+
+function updateCommentatorOnAirCountdown() {
+  const input = document.getElementById("commentatorOnAir");
+  const box = document.getElementById("commentatorOnAirBox");
+  const label = document.getElementById("commentatorOnAirCountdown");
+
+  if (!input || !box || !label) return;
+
+  label.classList.remove("countdown-danger");
+
+  const val = input.value;
+  if (!val) {
+    box.style.display = "none";
+    label.textContent = "";
+    return;
+  }
+
+  const targetSeconds = parseClockToSeconds(val);
+  if (targetSeconds === null) {
+    box.style.display = "none";
+    label.textContent = "";
+    return;
+  }
+
+  const now = new Date();
+  const nowSeconds =
+    now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  const diff = targetSeconds - nowSeconds;
+
+  box.style.display = "block";
+
+  if (diff > 15) {
+    label.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+  } else if (diff > 0) {
+    label.textContent =
+      "Nedräkning till sändningsstart: " + diffToCountdownString(diff);
+    label.classList.add("countdown-danger");
+  } else {
+    label.textContent = "Nedräkning till sändningsstart: Nu";
+    label.classList.add("countdown-danger");
   }
 }
 
@@ -339,13 +376,19 @@ function resetPreviousPeriod() {
   if (highlightsInput) highlightsInput.value = "";
   if (talkInput) talkInput.value = "";
 
-  // Töm resultat och göm output-kortet
+  // Nollställ kommentatorns klocka
+  const commentatorInput = document.getElementById("commentatorOnAir");
+  const commentatorBox = document.getElementById("commentatorOnAirBox");
+  const commentatorLabel = document.getElementById("commentatorOnAirCountdown");
+  if (commentatorInput) commentatorInput.value = "";
+  if (commentatorBox) commentatorBox.style.display = "none";
+  if (commentatorLabel) commentatorLabel.textContent = "";
+
   const resultLinesEl = document.getElementById("resultLines");
   const outputBox = document.getElementById("output");
   if (resultLinesEl) resultLinesEl.innerHTML = "";
   if (outputBox) outputBox.style.display = "none";
 
-  // Stoppa nedräkning och nolla texterna
   const countdownOnAirEl = document.getElementById("countdownOnAir");
   const countdownPeriodEl = document.getElementById("countdownPeriod");
 
@@ -381,10 +424,6 @@ function calculate() {
   const billboardStr = document.getElementById("billboard").value || "";
   const highlightsStr = document.getElementById("highlights").value || "";
   const talkStr = document.getElementById("talk").value || "";
-  const interviewHomeStr =
-    document.getElementById("interviewHome").value || "";
-  const interviewAwayStr =
-    document.getElementById("interviewAway").value || "";
 
   const periodEndSeconds = parseClockToSeconds(periodEndStr);
   if (periodEndSeconds === null) {
@@ -397,12 +436,8 @@ function calculate() {
   const billboardSeconds = parseDurationToSeconds(billboardStr);
   const highlightsSeconds = parseDurationToSeconds(highlightsStr);
   const talkSeconds = parseDurationToSeconds(talkStr);
-  const interviewHomeSeconds = parseMMSS(interviewHomeStr);
-  const interviewAwaySeconds = parseMMSS(interviewAwayStr);
-  const interviewTotalSeconds = interviewHomeSeconds + interviewAwaySeconds;
 
   const contentSeconds = billboardSeconds + highlightsSeconds + talkSeconds;
-  const totalContentSeconds = contentSeconds + interviewTotalSeconds;
 
   const periodStartSeconds = periodEndSeconds + pauseSeconds;
   const onAirSeconds = periodStartSeconds - contentSeconds;
@@ -486,7 +521,8 @@ function saveState() {
       interviewAway: document.getElementById("interviewAway")?.value || "",
       manualOnAir: document.getElementById("manualOnAir")?.value || "",
       manualMatchStart:
-        document.getElementById("manualMatchStart")?.value || ""
+        document.getElementById("manualMatchStart")?.value || "",
+      commentatorOnAir: document.getElementById("commentatorOnAir")?.value || ""
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
@@ -546,9 +582,14 @@ function loadState() {
       if (el) el.value = state.pauseOverride;
       if (disp) disp.textContent = state.pauseOverride || "–:–";
     }
+    if (state.commentatorOnAir !== undefined) {
+      const el = document.getElementById("commentatorOnAir");
+      if (el) el.value = state.commentatorOnAir;
+    }
 
     updateInterviewTotal();
     updateManualOnAirCountdown();
+    updateCommentatorOnAirCountdown();
   } catch (e) {
     console.warn("Kunde inte läsa state", e);
   }
@@ -579,7 +620,6 @@ function initPausePicker() {
     return;
   }
 
-  // Fyll med 0–30 minuter
   selMin.innerHTML = "";
   for (let m = 0; m <= 30; m++) {
     const opt = document.createElement("option");
@@ -588,7 +628,6 @@ function initPausePicker() {
     selMin.appendChild(opt);
   }
 
-  // Fyll med 0–59 sekunder
   selSec.innerHTML = "";
   for (let s = 0; s < 60; s++) {
     const opt = document.createElement("option");
@@ -662,7 +701,6 @@ function initManualOnAirPicker() {
     return;
   }
 
-  // 0–23 timmar
   selH.innerHTML = "";
   for (let h = 0; h < 24; h++) {
     const opt = document.createElement("option");
@@ -671,7 +709,6 @@ function initManualOnAirPicker() {
     selH.appendChild(opt);
   }
 
-  // 0–59 minuter
   selM.innerHTML = "";
   for (let m = 0; m < 60; m++) {
     const opt = document.createElement("option");
@@ -680,7 +717,6 @@ function initManualOnAirPicker() {
     selM.appendChild(opt);
   }
 
-  // 0–59 sekunder
   selS.innerHTML = "";
   for (let s = 0; s < 60; s++) {
     const opt = document.createElement("option");
@@ -771,7 +807,6 @@ function initManualMatchStartPicker() {
     return;
   }
 
-  // 0–23 timmar
   selH.innerHTML = "";
   for (let h = 0; h < 24; h++) {
     const opt = document.createElement("option");
@@ -780,7 +815,6 @@ function initManualMatchStartPicker() {
     selH.appendChild(opt);
   }
 
-  // 0–59 minuter
   selM.innerHTML = "";
   for (let m = 0; m < 60; m++) {
     const opt = document.createElement("option");
@@ -789,7 +823,6 @@ function initManualMatchStartPicker() {
     selM.appendChild(opt);
   }
 
-  // 0–59 sekunder
   selS.innerHTML = "";
   for (let s = 0; s < 60; s++) {
     const opt = document.createElement("option");
@@ -853,6 +886,110 @@ function initManualMatchStartPicker() {
   });
 }
 
+/* ---------- NY: SCROLLKLOCKA FÖR KOMMENTATORNS SÄNDNINGSSTART ---------- */
+
+function initCommentatorOnAirPicker() {
+  const overlay = document.getElementById("commentatorOnAirPickerOverlay");
+  const btnOpen = document.getElementById("openCommentatorOnAirPicker");
+  const btnCancel = document.getElementById("commentatorOnAirPickerCancel");
+  const btnSet = document.getElementById("commentatorOnAirPickerSet");
+  const selH = document.getElementById("commentatorOnAirPickerHours");
+  const selM = document.getElementById("commentatorOnAirPickerMinutes");
+  const selS = document.getElementById("commentatorOnAirPickerSeconds");
+  const input = document.getElementById("commentatorOnAir");
+
+  if (
+    !overlay ||
+    !btnOpen ||
+    !btnCancel ||
+    !btnSet ||
+    !selH ||
+    !selM ||
+    !selS ||
+    !input
+  ) {
+    return;
+  }
+
+  selH.innerHTML = "";
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement("option");
+    opt.value = String(h);
+    opt.textContent = String(h).padStart(2, "0");
+    selH.appendChild(opt);
+  }
+
+  selM.innerHTML = "";
+  for (let m = 0; m < 60; m++) {
+    const opt = document.createElement("option");
+    opt.value = String(m);
+    opt.textContent = String(m).padStart(2, "0");
+    selM.appendChild(opt);
+  }
+
+  selS.innerHTML = "";
+  for (let s = 0; s < 60; s++) {
+    const opt = document.createElement("option");
+    opt.value = String(s);
+    opt.textContent = String(s).padStart(2, "0");
+    selS.appendChild(opt);
+  }
+
+  function openWithCurrentValue() {
+    let baseStr = input.value;
+
+    if (!baseStr) {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      baseStr = `${h}:${m}:${s}`;
+    }
+
+    baseStr = baseStr.trim();
+    const parts = baseStr.split(":").map((p) => Number(p));
+    let h = 0;
+    let m = 0;
+    let s = 0;
+
+    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
+      h = parts[0];
+      m = parts[1];
+      s = parts[2] ?? 0;
+    }
+
+    selH.value = String(Math.min(Math.max(h, 0), 23));
+    selM.value = String(Math.min(Math.max(m, 0), 59));
+    selS.value = String(Math.min(Math.max(s, 0), 59));
+
+    overlay.style.display = "flex";
+  }
+
+  btnOpen.addEventListener("click", () => {
+    openWithCurrentValue();
+  });
+
+  btnCancel.addEventListener("click", () => {
+    overlay.style.display = "none";
+  });
+
+  btnSet.addEventListener("click", () => {
+    const h = Number(selH.value);
+    const m = Number(selM.value);
+    const s = Number(selS.value);
+
+    const hStr = String(h).padStart(2, "0");
+    const mStr = String(m).padStart(2, "0");
+    const sStr = String(s).padStart(2, "0");
+
+    input.value = `${hStr}:${mStr}:${sStr}`;
+    overlay.style.display = "none";
+
+    updateCommentatorOnAirCountdown();
+    saveState();
+  });
+}
+
 /* ---------- INIT ---------- */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -861,6 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initPausePicker();
   initManualOnAirPicker();
   initManualMatchStartPicker();
+  initCommentatorOnAirPicker();
 
   const presetSelect = document.getElementById("preset");
   if (presetSelect) {
@@ -879,7 +1017,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "interviewHome",
     "interviewAway",
     "manualOnAir",
-    "manualMatchStart"
+    "manualMatchStart",
+    "commentatorOnAir"
   ].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -899,6 +1038,9 @@ document.addEventListener("DOMContentLoaded", () => {
         manualPhase = "before";
         manualBillboardEndSeconds = null;
         updateManualOnAirCountdown();
+      }
+      if (id === "commentatorOnAir") {
+        updateCommentatorOnAirCountdown();
       }
       saveState();
     });
@@ -926,7 +1068,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       resetPreviousPeriod();
 
-      // Nollställ scrollklockan (aktuell paus)
       const pauseOverride = document.getElementById("pauseOverride");
       const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
 
