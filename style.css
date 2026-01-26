@@ -13,6 +13,7 @@ body {
 
 h1 {
   text-align: center;
+  margin: 0 0 0.75rem 0;
 }
 
 .version {
@@ -31,10 +32,12 @@ h1 {
 button {
   background: #0ea5e9;
   border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
   cursor: pointer;
+  width: 100%;
+  max-width: 320px;
 }
 
 button:hover {
@@ -49,18 +52,44 @@ button:hover {
 
 .live-clock {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
+  font-variant-numeric: tabular-nums;
   color: #38bdf8;
   margin-bottom: 1rem;
 }
 
-.countdown {
-  margin-top: 0.4rem;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
+.timer-block {
+  margin-top: 0.75rem;
 }
 
-/* Scrollklocka */
+.timer-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 0.35rem;
+}
+
+.timer-display {
+  display: inline-block;
+  min-width: 220px;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,0.35);
+  background: rgba(2,6,23,0.75);
+  box-shadow: inset 0 0 0 1px rgba(56,189,248,0.12);
+  font-size: 2.0rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.timer-display.is-now {
+  color: #34d399;
+}
+
+.timer-display.is-empty {
+  color: #64748b;
+}
+
 .timepicker-overlay {
   position: fixed;
   inset: 0;
@@ -74,20 +103,38 @@ button:hover {
   background: #020617;
   padding: 1rem;
   border-radius: 12px;
-  width: 280px;
+  width: 300px;
+  border: 1px solid rgba(148,163,184,0.25);
+}
+
+.timepicker-title {
+  font-weight: 800;
+  margin-bottom: 0.5rem;
 }
 
 .timepicker-scrolls {
   display: flex;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   margin: 0.8rem 0;
+  font-variant-numeric: tabular-nums;
 }
 
 select {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   background: #020617;
   color: #e5e7eb;
   border: 1px solid #64748b;
-  border-radius: 6px;
+  border-radius: 10px;
+  padding: 0.4rem 0.55rem;
+}
+
+.timepicker-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.timepicker-actions button {
+  width: 120px;
 }
