@@ -176,6 +176,24 @@
         Alla tider är lokal tid. Du kan runda av till hel minut i körschemat.
       </p>
     </section>
+
+    <!-- NY: Kommentatorns valda sändningsstart (manuell nedräkning) -->
+    <section class="card" id="commentatorOnAirCard">
+      <h2>Kommentatorns sändningsstart</h2>
+
+      <div class="field">
+        <label for="commentatorOnAir">Sändningsstart (HH:MM:SS)</label>
+        <div class="inline-group">
+          <input type="time" id="commentatorOnAir" step="1" />
+          <button id="openCommentatorOnAirPicker" type="button">Ställ in</button>
+        </div>
+      </div>
+
+      <div class="output" id="commentatorOnAirBox" style="display:none;">
+        <div class="countdown" id="commentatorOnAirCountdown"></div>
+      </div>
+    </section>
+
   </div>
 
   <!-- Scrollklocka för paus -->
@@ -255,6 +273,37 @@
           Avbryt
         </button>
         <button id="manualMatchStartPickerSet" type="button">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NY: Scrollklocka för kommentatorns sändningsstart (HH:MM:SS) -->
+  <div
+    id="commentatorOnAirPickerOverlay"
+    class="timepicker-overlay"
+    style="display:none;"
+  >
+    <div class="timepicker-box">
+      <div class="timepicker-title">Välj kommentatorns sändningsstart</div>
+      <div class="timepicker-scrolls">
+        <select id="commentatorOnAirPickerHours"></select>
+        <span>h</span>
+        <select id="commentatorOnAirPickerMinutes"></select>
+        <span>min</span>
+        <select id="commentatorOnAirPickerSeconds"></select>
+        <span>sek</span>
+      </div>
+      <div class="timepicker-actions">
+        <button
+          id="commentatorOnAirPickerCancel"
+          type="button"
+          class="secondary-btn"
+        >
+          Avbryt
+        </button>
+        <button id="commentatorOnAirPickerSet" type="button">
           OK
         </button>
       </div>
