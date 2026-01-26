@@ -328,30 +328,7 @@ function applyPreset(preset) {
   }
 }
 
-/* ---------- TÄTHETS-TEXT MED BLÅ TIDER ---------- */
-
-function setTightnessMessage(diffSeconds) {
-  const el = document.getElementById("tightness");
-  if (!el) return;
-
-  el.className = "tightness";
-
-  const absStr = secondsToCountdownString(Math.abs(diffSeconds));
-
-  if (diffSeconds < 0) {
-    el.innerHTML =
-      `Röd: Paketet är längre än pausen, kapa cirka <span class="time-number">${absStr}</span>.`;
-    el.classList.add("tightness-bad");
-  } else if (diffSeconds <= 60) {
-    el.innerHTML =
-      "Grön: Du ligger väldigt nära paustiden, tajt men okej.";
-    el.classList.add("tightness-good");
-  } else {
-    el.innerHTML =
-      `Grön: Du har gott om marginal, +<span class="time-number">${absStr}</span> utöver paketet.`;
-    el.classList.add("tightness-good");
-  }
-}
+/* ---------- RESET ---------- */
 
 function resetPreviousPeriod() {
   const periodEndInput = document.getElementById("periodEnd");
@@ -367,13 +344,6 @@ function resetPreviousPeriod() {
   const outputBox = document.getElementById("output");
   if (resultLinesEl) resultLinesEl.innerHTML = "";
   if (outputBox) outputBox.style.display = "none";
-
-  // Töm tightness-rutan
-  const tightnessEl = document.getElementById("tightness");
-  if (tightnessEl) {
-    tightnessEl.textContent = "";
-    tightnessEl.className = "tightness";
-  }
 
   // Stoppa nedräkning och nolla texterna
   const countdownOnAirEl = document.getElementById("countdownOnAir");
@@ -420,7 +390,6 @@ function calculate() {
   if (periodEndSeconds === null) {
     resultLinesEl.innerHTML =
       "<p>Ange tid när perioden slutade (HH:MM eller HH:MM:SS).</p>";
-    setTightnessMessage(0);
     return;
   }
 
@@ -437,14 +406,6 @@ function calculate() {
 
   const periodStartSeconds = periodEndSeconds + pauseSeconds;
   const onAirSeconds = periodStartSeconds - contentSeconds;
-
-  const billboardStartSeconds = onAirSeconds;
-  const highlightsStartSeconds = billboardStartSeconds + billboardSeconds;
-  const talkStartSeconds = highlightsStartSeconds + highlightsSeconds;
-  const interviewsStartSeconds = talkStartSeconds + talkSeconds;
-
-  // Skillnad mot paketet (utan intervjuer)
-  const diffSeconds = pauseSeconds - contentSeconds;
 
   const lines = [];
 
@@ -466,8 +427,6 @@ function calculate() {
   );
 
   resultLinesEl.innerHTML = lines.join("\n");
-
-  setTightnessMessage(diffSeconds);
 
   const countdownOnAirEl = document.getElementById("countdownOnAir");
   const countdownPeriodEl = document.getElementById("countdownPeriod");
@@ -736,254 +695,3 @@ function initManualOnAirPicker() {
     if (!baseStr) {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, "0");
-      const m = String(now.getMinutes()).padStart(2, "0");
-      const s = String(now.getSeconds()).padStart(2, "0");
-      baseStr = `${h}:${m}:${s}`;
-    }
-
-    baseStr = baseStr.trim();
-    const parts = baseStr.split(":").map((p) => Number(p));
-    let h = 0;
-    let m = 0;
-    let s = 0;
-
-    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
-      h = parts[0];
-      m = parts[1];
-      s = parts[2] ?? 0;
-    }
-
-    selH.value = String(Math.min(Math.max(h, 0), 23));
-    selM.value = String(Math.min(Math.max(m, 0), 59));
-    selS.value = String(Math.min(Math.max(s, 0), 59));
-
-    overlay.style.display = "flex";
-  }
-
-  btnOpen.addEventListener("click", () => {
-    openWithCurrentValue();
-  });
-
-  btnCancel.addEventListener("click", () => {
-    overlay.style.display = "none";
-  });
-
-  btnSet.addEventListener("click", () => {
-    const h = Number(selH.value);
-    const m = Number(selM.value);
-    const s = Number(selS.value);
-
-    const hStr = String(h).padStart(2, "0");
-    const mStr = String(m).padStart(2, "0");
-    const sStr = String(s).padStart(2, "0");
-
-    input.value = `${hStr}:${mStr}:${sStr}`;
-    overlay.style.display = "none";
-
-    manualPhase = "before";
-    manualBillboardEndSeconds = null;
-    updateManualOnAirCountdown();
-    saveState();
-  });
-}
-
-/* ---------- SCROLLKLOCKA FÖR MATCHSTART ---------- */
-
-function initManualMatchStartPicker() {
-  const overlay = document.getElementById("manualMatchStartPickerOverlay");
-  const btnOpen = document.getElementById("openManualMatchStartPicker");
-  const btnCancel = document.getElementById("manualMatchStartPickerCancel");
-  const btnSet = document.getElementById("manualMatchStartPickerSet");
-  const selH = document.getElementById("manualMatchStartPickerHours");
-  const selM = document.getElementById("manualMatchStartPickerMinutes");
-  const selS = document.getElementById("manualMatchStartPickerSeconds");
-  const input = document.getElementById("manualMatchStart");
-
-  if (
-    !overlay ||
-    !btnOpen ||
-    !btnCancel ||
-    !btnSet ||
-    !selH ||
-    !selM ||
-    !selS ||
-    !input
-  ) {
-    return;
-  }
-
-  // 0–23 timmar
-  selH.innerHTML = "";
-  for (let h = 0; h < 24; h++) {
-    const opt = document.createElement("option");
-    opt.value = String(h);
-    opt.textContent = String(h).padStart(2, "0");
-    selH.appendChild(opt);
-  }
-
-  // 0–59 minuter
-  selM.innerHTML = "";
-  for (let m = 0; m < 60; m++) {
-    const opt = document.createElement("option");
-    opt.value = String(m);
-    opt.textContent = String(m).padStart(2, "0");
-    selM.appendChild(opt);
-  }
-
-  // 0–59 sekunder
-  selS.innerHTML = "";
-  for (let s = 0; s < 60; s++) {
-    const opt = document.createElement("option");
-    opt.value = String(s);
-    opt.textContent = String(s).padStart(2, "0");
-    selS.appendChild(opt);
-  }
-
-  function openWithCurrentValue() {
-    let baseStr = input.value;
-
-    if (!baseStr) {
-      const now = new Date();
-      const h = String(now.getHours()).padStart(2, "0");
-      const m = String(now.getMinutes()).padStart(2, "0");
-      const s = String(now.getSeconds()).padStart(2, "0");
-      baseStr = `${h}:${m}:${s}`;
-    }
-
-    baseStr = baseStr.trim();
-    const parts = baseStr.split(":").map((p) => Number(p));
-    let h = 0;
-    let m = 0;
-    let s = 0;
-
-    if (parts.length >= 2 && !parts.some((n) => Number.isNaN(n))) {
-      h = parts[0];
-      m = parts[1];
-      s = parts[2] ?? 0;
-    }
-
-    selH.value = String(Math.min(Math.max(h, 0), 23));
-    selM.value = String(Math.min(Math.max(m, 0), 59));
-    selS.value = String(Math.min(Math.max(s, 0), 59));
-
-    overlay.style.display = "flex";
-  }
-
-  btnOpen.addEventListener("click", () => {
-    openWithCurrentValue();
-  });
-
-  btnCancel.addEventListener("click", () => {
-    overlay.style.display = "none";
-  });
-
-  btnSet.addEventListener("click", () => {
-    const h = Number(selH.value);
-    const m = Number(selM.value);
-    const s = Number(selS.value);
-
-    const hStr = String(h).padStart(2, "0");
-    const mStr = String(m).padStart(2, "0");
-    const sStr = String(s).padStart(2, "0");
-
-    input.value = `${hStr}:${mStr}:${sStr}`;
-    overlay.style.display = "none";
-
-    updateManualOnAirCountdown();
-    saveState();
-  });
-}
-
-/* ---------- INIT ---------- */
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadState();
-  startLiveClock();
-  initPausePicker();
-  initManualOnAirPicker();
-  initManualMatchStartPicker();
-
-  const presetSelect = document.getElementById("preset");
-  if (presetSelect) {
-    presetSelect.addEventListener("change", () => {
-      applyPreset(presetSelect.value);
-      saveState();
-    });
-  }
-
-  [
-    "periodEnd",
-    "pauseMinutes",
-    "billboard",
-    "highlights",
-    "talk",
-    "interviewHome",
-    "interviewAway",
-    "manualOnAir",
-    "manualMatchStart"
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const evt =
-      el.tagName === "SELECT" || el.type === "number" ? "change" : "input";
-    el.addEventListener(evt, () => {
-      if (id === "interviewHome" || id === "interviewAway") {
-        updateInterviewTotal();
-      }
-      if (
-        id === "manualOnAir" ||
-        id === "billboard" ||
-        id === "manualMatchStart" ||
-        id === "interviewHome" ||
-        id === "interviewAway"
-      ) {
-        manualPhase = "before";
-        manualBillboardEndSeconds = null;
-        updateManualOnAirCountdown();
-      }
-      saveState();
-    });
-  });
-
-  const setNowBtn = document.getElementById("setNowBtn");
-  if (setNowBtn) {
-    setNowBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const now = new Date();
-      const h = String(now.getHours()).padStart(2, "0");
-      const m = String(now.getMinutes()).padStart(2, "0");
-      const s = String(now.getSeconds()).padStart(2, "0");
-      const periodEndInput = document.getElementById("periodEnd");
-      if (periodEndInput) {
-        periodEndInput.value = `${h}:${m}:${s}`;
-        saveState();
-      }
-    });
-  }
-
-  const resetBtn = document.getElementById("resetBtn");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      resetPreviousPeriod();
-      
-      // Nollställ scrollklockan (aktuell paus)
-      const pauseOverride = document.getElementById("pauseOverride");
-      const pauseOverrideDisplay = document.getElementById("pauseOverrideDisplay");
-
-      if (pauseOverride) pauseOverride.value = "";
-      if (pauseOverrideDisplay) pauseOverrideDisplay.textContent = "–:–";
-
-      saveState();
-    });
-  }
-
-  const calcBtn = document.getElementById("calcBtn");
-  if (calcBtn) {
-    calcBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      calculate();
-      saveState();
-    });
-  }
-});
