@@ -2,59 +2,80 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <title>Pausklocka v6.0</title>
+  <title>Pausklocka v6.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="app">
-  <h1>Pausklocka <span class="version">v6.0</span></h1>
+  <h1>Pausklocka <span class="version">v6.1</span></h1>
 
-  <!-- Liveklocka -->
   <div id="liveClock" class="live-clock">--:--:--</div>
 
-  <!-- Sändningsstart -->
   <section class="card">
     <h2>Sändningsstart</h2>
 
     <button id="openOnAirPicker">Ställ sändningsstart</button>
-    <div class="countdown" id="onAirCountdown"></div>
-    <div class="countdown" id="billboardCountdown"></div>
-    <div class="countdown" id="talkWindow"></div>
-    <div class="countdown" id="matchCountdown"></div>
+
+    <div class="timer-block">
+      <div class="timer-label">On air</div>
+      <div class="timer-display" id="onAirCountdown">--:--</div>
+    </div>
+
+    <div class="timer-block">
+      <div class="timer-label">Billboard</div>
+      <div class="timer-display" id="billboardCountdown">--:--</div>
+    </div>
+
+    <div class="timer-block">
+      <div class="timer-label">Pratfönster</div>
+      <div class="timer-display" id="talkWindow">--:--</div>
+    </div>
+
+    <div class="timer-block">
+      <div class="timer-label">Matchstart</div>
+      <div class="timer-display" id="matchCountdown">--:--</div>
+    </div>
   </section>
 
-  <!-- Paus -->
   <section class="card">
     <h2>Paus</h2>
 
     <button id="openPausePicker">Ställ paustid</button>
-    <div class="countdown" id="pauseCountdown"></div>
+
+    <div class="timer-block">
+      <div class="timer-label">Paus</div>
+      <div class="timer-display" id="pauseCountdown">--:--</div>
+    </div>
 
     <button id="calcBtn">Räkna ut tider</button>
   </section>
 
-  <!-- Manuell sändning efter paus -->
   <section class="card" id="manualAfterPauseCard" style="display:none;">
     <h2>Sändning efter paus</h2>
 
     <button id="openManualAfterPausePicker">Ställ starttid</button>
-    <div class="countdown" id="manualAfterPauseCountdown"></div>
+
+    <div class="timer-block">
+      <div class="timer-label">Manuell on air</div>
+      <div class="timer-display" id="manualAfterPauseCountdown">--:--</div>
+    </div>
   </section>
 </div>
 
-<!-- Scrollklocka (återanvänds för alla tider) -->
 <div id="timePickerOverlay" class="timepicker-overlay" style="display:none;">
   <div class="timepicker-box">
     <div class="timepicker-title" id="timePickerTitle"></div>
-    <div class="timepicker-scrolls">
-      <select id="pickerHours"></select>
+
+    <div class="timepicker-scrolls" aria-label="Rulla tid">
+      <select id="pickerHours" aria-label="Timmar"></select>
       <span>:</span>
-      <select id="pickerMinutes"></select>
+      <select id="pickerMinutes" aria-label="Minuter"></select>
       <span>:</span>
-      <select id="pickerSeconds"></select>
+      <select id="pickerSeconds" aria-label="Sekunder"></select>
     </div>
+
     <div class="timepicker-actions">
       <button id="pickerCancel" class="secondary-btn">Avbryt</button>
       <button id="pickerSet">OK</button>
