@@ -1,93 +1,402 @@
+/* Grundlayout */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+}
+
+html,
 body {
   margin: 0;
-  padding: 1rem;
-  background: radial-gradient(circle at top, #111827, #020617);
-  font-family: system-ui, sans-serif;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: radial-gradient(circle at top, #111827 0, #020617 45%);
   color: #e5e7eb;
+  html, body {
+  font-family: "Inter", sans-serif;
+}
+
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1.5rem;
 }
 
 .app {
-  max-width: 420px;
-  margin: auto;
+  width: 100%;
+  max-width: 720px;
 }
+
+/* Rubriker */
 
 h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
   text-align: center;
+  color: #f9fafb;
+  font-family: "Poppins", sans-serif;
 }
 
-.version {
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
+h2 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  color: #e5e7eb;
+  text-align: center;
+ }
+
+/* Kort / sektioner */
 
 .card {
-  background: rgba(15,23,42,0.9);
+  background: rgba(15, 23, 42, 0.9);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   margin-bottom: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.28);
   text-align: center;
+ }
+
+.output-card {
+  margin-top: 0.5rem;
 }
 
+/* Liveklocka */
+
+.live-clock {
+  text-align: center;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.7rem;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+/* Formfält */
+
+.field {
+  margin-bottom: 0.8rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.9rem;
+  color: #cbd5f5;
+  margin-bottom: 0.25rem;
+}
+
+.inline-group {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+input[type="text"],
+input[type="time"],
+select {
+  width: 100%;
+  padding: 0.38rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+input::placeholder {
+  color: #6b7280;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+legend {
+  font-size: 0.9rem;
+  padding: 0;
+  margin-bottom: 0.4rem;
+  color: #e5e7eb;
+}
+
+/* Knappar */
+
 button {
-  background: #0ea5e9;
   border: none;
   border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.9rem;
   cursor: pointer;
+  background: #0ea5e9;
+  color: #0b1120;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 button:hover {
   background: #38bdf8;
 }
 
+button:active {
+  transform: translateY(1px);
+}
+
+.actions {
+  margin-top: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+
 .secondary-btn {
   background: transparent;
-  border: 1px solid #475569;
-  color: #e5e7eb;
+  border: 1px solid #3f4b63;
+  color: #cbd5e1;
+  font-weight: 500;
+  padding: 0.38rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.live-clock {
-  text-align: center;
-  font-size: 2rem;
-  color: #38bdf8;
-  margin-bottom: 1rem;
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
+
+
+
+/* Output */
+
+.output {
+  margin-top: 0.4rem;
+}
+
+#resultLines p {
+  margin: 0 0 0.18rem 0;
+  font-size: 0.92rem;
+}
+
+#resultLines strong {
+  font-weight: 500;
+}
+
+#resultLines p {
+  margin: 0.3rem 0;
+  line-height: 1.45;
+}
+
+
+/* Blå siffror */
+
+.time-number {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* Tightness-rutan */
+
+.tightness {
+  margin-top: 0.7rem;
+  padding: 0.7rem 1rem;
+  line-height: 1.4;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* Vit text i rutan */
+#tightness,
+.tightness,
+.tightness-good,
+.tightness-bad,
+.tightness-warn {
+  color: #ffffff;
+}
+
+/* Färger per status */
+.tightness-good {
+  background: rgba(22, 163, 74, 0.23);
+  border-color: #22c55e;
+}
+
+.tightness-bad {
+  background: rgba(239, 68, 68, 0.23);
+  border-color: #ef4444;
+}
+
+.tightness-warn {
+  background: rgba(234, 179, 8, 0.23);
+  border-color: #eab308;
+}
+
+/* Blå siffror även inne i tightness-rutan */
+
+#tightness .time-number,
+.tightness .time-number,
+.tightness-good .time-number,
+.tightness-bad .time-number,
+.tightness-warn .time-number {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* Nedräkningar nederst */
 
 .countdown {
-  margin-top: 0.4rem;
-  font-size: 1rem;
+  margin-top: 0.25rem;
+  font-size: 0.92rem;
   font-variant-numeric: tabular-nums;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
-/* Scrollklocka */
+/* Röd varning för sista sekunderna */
+.countdown-danger {
+  color: #fecaca;
+  font-weight: 600;
+}
+
+/* Puls för hela kortet när sändningen har startat */
+@keyframes card-alert-pulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+  50% {
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(248, 113, 113, 0.8);
+    border-color: rgba(248, 113, 113, 0.9);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+}
+
+.card-alert-danger {
+  animation: card-alert-pulse 1s ease-in-out infinite;
+}
+
+
+.small {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Mobilanpassning */
+
+@media (max-width: 600px) {
+  body {
+    padding: 0.8rem;
+  }
+
+  .card {
+    padding: 0.85rem 0.9rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}
+
+/* Pausrad med två kolumner */
+
+.pause-row {
+  align-items: stretch;
+}
+
+.pause-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pause-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.pause-actual {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pause-display {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  min-width: 2.7rem;
+  text-align: right;
+}
+
+/* Overlay för scrollklockan */
+
 .timepicker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(15, 23, 42, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 999;
 }
 
 .timepicker-box {
   background: #020617;
-  padding: 1rem;
   border-radius: 12px;
-  width: 280px;
+  padding: 1rem 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  width: 100%;
+  max-width: 320px;
+}
+
+.timepicker-title {
+  font-size: 1rem;
+  margin-bottom: 0.7rem;
+  text-align: center;
 }
 
 .timepicker-scrolls {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  margin: 0.8rem 0;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
 }
 
-select {
-  font-size: 1.2rem;
+.timepicker-scrolls select {
+  padding: 0.3rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
   background: #020617;
   color: #e5e7eb;
-  border: 1px solid #64748b;
-  border-radius: 6px;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timepicker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
