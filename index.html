@@ -2,83 +2,158 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <title>Pausklocka v6.1</title>
+  <title>Pausplanerare v6.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="app">
-  <h1>Pausklocka <span class="version">v6.1</span></h1>
+  <h1>Pausplanerare <span class="version">v6.2</span></h1>
 
   <div id="liveClock" class="live-clock">--:--:--</div>
 
-  <section class="card">
+  <section class="panel">
     <h2>Sändningsstart</h2>
 
-    <button id="openOnAirPicker">Ställ sändningsstart</button>
-
-    <div class="timer-block">
-      <div class="timer-label">On air</div>
-      <div class="timer-display" id="onAirCountdown">--:--</div>
+    <div class="row">
+      <label for="onAirTime">Sändningsstart (HH:MM:SS)</label>
+      <div class="row-inline">
+        <input id="onAirTime" class="time-input" type="text" value="00:00:00" readonly />
+        <button id="btnSetOnAir" class="btn small">Ställ in</button>
+      </div>
     </div>
 
-    <div class="timer-block">
-      <div class="timer-label">Billboard</div>
-      <div class="timer-display" id="billboardCountdown">--:--</div>
+    <div class="countdown-note" id="onAirCountdownText">Nedräkning till sändningsstart: --</div>
+  </section>
+
+  <section class="panel">
+    <h2>Pausinställningar</h2>
+
+    <div class="row">
+      <label for="preset">Sport / preset</label>
+      <select id="preset" class="select">
+        <option value="none">Ingen preset</option>
+        <option value="hockey">Hockey</option>
+        <option value="football">Fotboll</option>
+        <option value="bandy">Bandy</option>
+        <option value="innebandy">Innebandy</option>
+      </select>
     </div>
 
-    <div class="timer-block">
-      <div class="timer-label">Pratfönster</div>
-      <div class="timer-display" id="talkWindow">--:--</div>
+    <div class="row">
+      <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
+      <div class="row-inline">
+        <input id="periodEnd" class="time-input" type="text" placeholder="HH:MM:SS" value="00:00:00" readonly />
+        <button id="btnNowPeriodEnd" class="btn small">Nu</button>
+      </div>
     </div>
 
-    <div class="timer-block">
-      <div class="timer-label">Matchstart</div>
-      <div class="timer-display" id="matchCountdown">--:--</div>
+    <div class="row">
+      <label>Pauslängd</label>
+      <div class="two-col">
+        <div class="mini">
+          <div class="mini-title">SCHEMA</div>
+          <div class="row-inline">
+            <input id="pauseLenSchema" class="time-input" type="text" value="18:00" readonly />
+            <button id="btnSetPauseSchema" class="btn small">Ställ in</button>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="mini-title">AKTUELL</div>
+          <div class="value" id="pauseLenActual">18:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <label for="billboard">Billboard + vinjett (mm:ss)</label>
+      <div class="row-inline">
+        <input id="billboard" class="time-input" type="text" value="00:30" readonly />
+        <button id="btnSetBillboard" class="btn small">Ställ in</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <label for="highlights">Höjdpunkter (mm:ss)</label>
+      <div class="row-inline">
+        <input id="highlights" class="time-input" type="text" value="00:00" readonly />
+        <button id="btnSetHighlights" class="btn small">Ställ in</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <label for="extraTalk">Extra prat (mm:ss)</label>
+      <div class="row-inline">
+        <input id="extraTalk" class="time-input" type="text" value="00:00" readonly />
+        <button id="btnSetExtraTalk" class="btn small">Ställ in</button>
+      </div>
+    </div>
+
+    <div class="subpanel">
+      <h3>Intervjutider hemmalag / bortalag</h3>
+
+      <div class="row">
+        <label for="homeInterview">Intervju hemmalag (mm:ss)</label>
+        <div class="row-inline">
+          <input id="homeInterview" class="time-input" type="text" value="00:00" readonly />
+          <button id="btnSetHomeInterview" class="btn small">Ställ in</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="awayInterview">Intervju bortalag (mm:ss)</label>
+        <div class="row-inline">
+          <input id="awayInterview" class="time-input" type="text" value="00:00" readonly />
+          <button id="btnSetAwayInterview" class="btn small">Ställ in</button>
+        </div>
+      </div>
+
+      <div class="total" id="interviewTotal">Totalt intervjupaket: 00:00</div>
+    </div>
+
+    <div class="actions">
+      <button id="btnReset" class="btn secondary">Reset</button>
+      <button id="btnCalc" class="btn">Räkna ut tider</button>
+    </div>
+
+    <div class="result" id="calcResult" style="display:none;">
+      <div class="result-line"><span>Nästa periodstart</span><strong id="nextPeriodStart">--:--:--</strong></div>
+      <div class="result-line"><span>Rekommenderad sändningsstart</span><strong id="recommendedOnAir">--:--:--</strong></div>
     </div>
   </section>
 
-  <section class="card">
-    <h2>Paus</h2>
-
-    <button id="openPausePicker">Ställ paustid</button>
-
-    <div class="timer-block">
-      <div class="timer-label">Paus</div>
-      <div class="timer-display" id="pauseCountdown">--:--</div>
-    </div>
-
-    <button id="calcBtn">Räkna ut tider</button>
-  </section>
-
-  <section class="card" id="manualAfterPauseCard" style="display:none;">
+  <section class="panel" id="manualAfterPausePanel" style="display:none;">
     <h2>Sändning efter paus</h2>
 
-    <button id="openManualAfterPausePicker">Ställ starttid</button>
+    <div class="row">
+      <label for="manualAfterPauseTime">Manuell on air (HH:MM:SS)</label>
+      <div class="row-inline">
+        <input id="manualAfterPauseTime" class="time-input" type="text" value="00:00:00" readonly />
+        <button id="btnSetManualAfterPause" class="btn small">Ställ in</button>
+      </div>
+    </div>
 
-    <div class="timer-block">
-      <div class="timer-label">Manuell on air</div>
-      <div class="timer-display" id="manualAfterPauseCountdown">--:--</div>
+    <div class="countdown-box">
+      <div class="countdown-label">Nedräkning</div>
+      <div class="countdown-time" id="manualAfterPauseCountdown">--:--</div>
     </div>
   </section>
 </div>
 
-<div id="timePickerOverlay" class="timepicker-overlay" style="display:none;">
-  <div class="timepicker-box">
-    <div class="timepicker-title" id="timePickerTitle"></div>
+<div id="pickerOverlay" class="picker-overlay" style="display:none;">
+  <div class="picker">
+    <div class="picker-title" id="pickerTitle">Ställ in tid</div>
 
-    <div class="timepicker-scrolls" aria-label="Rulla tid">
-      <select id="pickerHours" aria-label="Timmar"></select>
-      <span>:</span>
-      <select id="pickerMinutes" aria-label="Minuter"></select>
-      <span>:</span>
-      <select id="pickerSeconds" aria-label="Sekunder"></select>
+    <div class="picker-wheels" id="pickerWheels">
+      <select id="pH"></select><span>:</span>
+      <select id="pM"></select><span>:</span>
+      <select id="pS"></select>
     </div>
 
-    <div class="timepicker-actions">
-      <button id="pickerCancel" class="secondary-btn">Avbryt</button>
-      <button id="pickerSet">OK</button>
+    <div class="picker-actions">
+      <button id="pickerCancel" class="btn secondary small">Avbryt</button>
+      <button id="pickerOk" class="btn small">OK</button>
     </div>
   </div>
 </div>
