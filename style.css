@@ -161,7 +161,6 @@ button:active {
   gap: 0.5rem;
 }
 
-
 .secondary-btn {
   background: transparent;
   border: 1px solid #3f4b63;
@@ -175,8 +174,6 @@ button:active {
 .secondary-btn:hover {
   background: rgba(255, 255, 255, 0.05);
 }
-
-
 
 /* Output */
 
@@ -198,58 +195,9 @@ button:active {
   line-height: 1.45;
 }
 
-
 /* Blå siffror */
 
 .time-number {
-  color: #3b82f6;
-  font-weight: 600;
-}
-
-/* Tightness-rutan */
-
-.tightness {
-  margin-top: 0.7rem;
-  padding: 0.7rem 1rem;
-  line-height: 1.4;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
-  background: rgba(15, 23, 42, 0.85);
-}
-
-/* Vit text i rutan */
-#tightness,
-.tightness,
-.tightness-good,
-.tightness-bad,
-.tightness-warn {
-  color: #ffffff;
-}
-
-/* Färger per status */
-.tightness-good {
-  background: rgba(22, 163, 74, 0.23);
-  border-color: #22c55e;
-}
-
-.tightness-bad {
-  background: rgba(239, 68, 68, 0.23);
-  border-color: #ef4444;
-}
-
-.tightness-warn {
-  background: rgba(234, 179, 8, 0.23);
-  border-color: #eab308;
-}
-
-/* Blå siffror även inne i tightness-rutan */
-
-#tightness .time-number,
-.tightness .time-number,
-.tightness-good .time-number,
-.tightness-bad .time-number,
-.tightness-warn .time-number {
   color: #3b82f6;
   font-weight: 600;
 }
@@ -291,7 +239,6 @@ button:active {
 .card-alert-danger {
   animation: card-alert-pulse 1s ease-in-out infinite;
 }
-
 
 .small {
   margin-top: 0.5rem;
