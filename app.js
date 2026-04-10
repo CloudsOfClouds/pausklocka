@@ -47,13 +47,8 @@ function formatDuration(totalSeconds) {
   return `${seconds} s`;
 }
 
-function diffToTarget(target) {
-  const now = nowSeconds();
-  let diff = target - now;
-  if (diff < 0) {
-    diff += 86400;
-  }
-  return diff;
+function signedDiffToTarget(target) {
+  return target - nowSeconds();
 }
 
 function updateLiveClock() {
@@ -67,16 +62,22 @@ function updateCountdown() {
     return;
   }
 
-  const diff = diffToTarget(targets.onAir);
+  const diff = signedDiffToTarget(targets.onAir);
 
-  if (diff === 0) {
+  if (diff > 0) {
+    onAirCountdownEl.textContent = formatDuration(diff);
+    onAirCountdownEl.classList.toggle("warning", diff <= 15);
+    return;
+  }
+
+  if (diff >= -60) {
     onAirCountdownEl.textContent = "Sändning";
     onAirCountdownEl.classList.add("warning");
     return;
   }
 
-  onAirCountdownEl.textContent = formatDuration(diff);
-  onAirCountdownEl.classList.toggle("warning", diff <= 15);
+  onAirCountdownEl.textContent = "Starttid passerad";
+  onAirCountdownEl.classList.add("warning");
 }
 
 function tick() {
@@ -139,7 +140,7 @@ onAirBtn.addEventListener("click", () => openPicker("Sändningsstart", "onAir"))
 matchBtn.addEventListener("click", () => openPicker("Matchstart", "match"));
 
 nextBtn.addEventListener("click", () => {
-  alert("Sida 2 är inte byggd ännu.");
+  alert("Sida 2 är inte byggd ännu. Billboard-nedräkning kopplas in där.");
 });
 
 overlay.addEventListener("click", (event) => {
