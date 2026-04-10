@@ -23,7 +23,7 @@ select {
   min-height: 100vh;
   max-width: 420px;
   margin: 0 auto;
-  padding: 14px 14px 18px;
+  padding: 14px 14px 118px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -123,15 +123,34 @@ select {
   color: #dbeafe;
 }
 
-.info-value {
-  font-size: 1.15rem;
+.split-info {
+  display: grid;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.split-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.split-label {
+  font-size: 1rem;
   font-weight: 700;
-  color: #cbd5e1;
+  color: #94a3b8;
+}
+
+.split-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #e2e8f0;
   font-variant-numeric: tabular-nums;
 }
 
 .next-btn {
-  margin-top: auto;
+  margin-top: 20px;
   min-height: 56px;
   border: none;
   border-radius: 16px;
@@ -229,7 +248,7 @@ select {
   .app-shell {
     gap: 10px;
     padding-top: 10px;
-    padding-bottom: 14px;
+    padding-bottom: 118px;
   }
 
   .countdown-card {
@@ -248,5 +267,10 @@ select {
 
   .next-btn {
     min-height: 52px;
+  }
+
+  .split-label,
+  .split-value {
+    font-size: 1rem;
   }
 }
