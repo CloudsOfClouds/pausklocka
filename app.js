@@ -1,4 +1,7 @@
 let activeTarget = null;
+let onAirFlowArmed = false;
+
+const BILLBOARD_SECONDS = 18;
 
 const targets = {
   onAir: null,
@@ -6,6 +9,7 @@ const targets = {
 };
 
 const liveClockEl = document.getElementById("liveClock");
+const countdownLabelEl = document.getElementById("countdownLabel");
 const onAirCountdownEl = document.getElementById("onAirCountdown");
 const onAirBtn = document.getElementById("openOnAirPicker");
 const matchBtn = document.getElementById("openMatchPicker");
@@ -55,29 +59,44 @@ function updateLiveClock() {
   liveClockEl.textContent = toClock(nowSeconds());
 }
 
+function showCountdown(label, value, warning = false) {
+  countdownLabelEl.textContent = label;
+  onAirCountdownEl.textContent = value;
+  onAirCountdownEl.classList.toggle("warning", warning);
+}
+
 function updateCountdown() {
   if (targets.onAir === null) {
-    onAirCountdownEl.textContent = "Ingen tid vald";
-    onAirCountdownEl.classList.remove("warning");
+    showCountdown("Nedräkning till sändning", "Ingen tid vald", false);
     return;
   }
 
   const diff = signedDiffToTarget(targets.onAir);
 
   if (diff > 0) {
-    onAirCountdownEl.textContent = formatDuration(diff);
-    onAirCountdownEl.classList.toggle("warning", diff <= 15);
+    onAirFlowArmed = true;
+    showCountdown("Nedräkning till sändning", formatDuration(diff), diff <= 15);
+    return;
+  }
+
+  if (onAirFlowArmed) {
+    const billboardRemaining = BILLBOARD_SECONDS + diff;
+
+    if (billboardRemaining > 0) {
+      showCountdown("Billboard", formatDuration(billboardRemaining), false);
+      return;
+    }
+
+    showCountdown("I sändning", "I sändning", true);
     return;
   }
 
   if (diff >= -60) {
-    onAirCountdownEl.textContent = "Sändning";
-    onAirCountdownEl.classList.add("warning");
+    showCountdown("Sändning", "Sändning", true);
     return;
   }
 
-  onAirCountdownEl.textContent = "Starttid passerad";
-  onAirCountdownEl.classList.add("warning");
+  showCountdown("Starttid passerad", "Starttid passerad", true);
 }
 
 function tick() {
@@ -125,6 +144,7 @@ document.getElementById("pickerSet").addEventListener("click", () => {
   if (activeTarget === "onAir") {
     targets.onAir = sec;
     onAirBtn.textContent = toClock(sec);
+    onAirFlowArmed = signedDiffToTarget(sec) > 0;
   }
 
   if (activeTarget === "match") {
@@ -140,7 +160,7 @@ onAirBtn.addEventListener("click", () => openPicker("Sändningsstart", "onAir"))
 matchBtn.addEventListener("click", () => openPicker("Matchstart", "match"));
 
 nextBtn.addEventListener("click", () => {
-  alert("Sida 2 är inte byggd ännu. Billboard-nedräkning kopplas in där.");
+  alert("Sida 2 är inte byggd ännu.");
 });
 
 overlay.addEventListener("click", (event) => {
