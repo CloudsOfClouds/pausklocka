@@ -2,314 +2,61 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <title>Pausplanerare</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <title>Pausklocka – Sida 1</title>
+  <link rel="stylesheet" href="pausklocka_sida1_style.css" />
 </head>
-
 <body>
-  <div class="app">
-    <h1>Pausplanerare</h1>
+  <main class="app-shell">
+    <header class="app-header">
+      <h1 class="app-title">Pausklocka</h1>
+      <div id="liveClock" class="live-clock">--:--:--</div>
+    </header>
 
-    <!-- Liveklocka -->
-    <div id="liveClock" class="live-clock">
-      --:--:--
-    </div>
+    <section class="card countdown-card">
+      <div class="card-label">Nedräkning till sändning</div>
+      <div id="onAirCountdown" class="countdown-value">Ingen tid vald</div>
+    </section>
 
-    <!-- Manuell nedräkning till sändningsstart + billboard + pratfönster -->
-    <section class="card" id="manualOnAirCard">
-      <h2>Sändningsstart</h2>
-
-      <div class="field">
-        <label for="manualOnAir">Sändningsstart (HH:MM:SS)</label>
-        <div class="inline-group">
-          <input type="time" id="manualOnAir" step="1" />
-          <button id="openManualOnAirPicker" type="button">Ställ in</button>
-        </div>
+    <section class="card times-card">
+      <div class="time-block">
+        <div class="card-label">Sändningsstart</div>
+        <button id="openOnAirPicker" class="time-pill" type="button">Ställ tid</button>
       </div>
 
-      <div class="field">
-        <label for="manualMatchStart">Matchstart / nedsläpp (HH:MM:SS)</label>
-        <div class="inline-group">
-          <input type="time" id="manualMatchStart" step="1" />
-          <button id="openManualMatchStartPicker" type="button">Ställ in</button>
-        </div>
+      <div class="info-block">
+        <div class="card-label muted-label">Billboard + intervjuer</div>
+        <div class="info-value">2 min 45 s</div>
       </div>
 
-      <div class="output" id="manualOnAirBox" style="display:none;">
-        <div class="countdown" id="manualOnAirCountdown"></div>
-        <div class="countdown" id="manualBillboardCountdown"></div>
-        <div class="countdown" id="manualTalkWindow"></div>
-        <div class="countdown" id="manualMatchCountdown"></div>
+      <div class="time-block">
+        <div class="card-label">Matchstart</div>
+        <button id="openMatchPicker" class="time-pill secondary-pill" type="button">Ställ tid</button>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Pausinställningar</h2>
+    <button id="nextBtn" class="next-btn" type="button">Nästa</button>
+  </main>
 
-      <div class="field">
-        <label for="preset">Sport / preset</label>
-        <select id="preset">
-          <option value="">Ingen preset</option>
-          <option value="bandy_18">Bandy 18 min paus</option>
-          <option value="innebandy_15">Innebandy 15 min paus</option>
-          <option value="fotboll_15">Fotboll 15 min paus</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="periodEnd">Perioden slutade (HH:MM:SS)</label>
-        <div class="inline-group">
-          <input
-            type="text"
-            id="periodEnd"
-            placeholder="HH:MM:SS"
-            inputmode="text"
-            pattern="[0-9:]*"
-          />
-          <button id="setNowBtn">Nu</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Pauslängd</label>
-        <div class="inline-group pause-row">
-          <div class="pause-col">
-            <div class="pause-label">Schema</div>
-            <input
-              type="text"
-              id="pauseMinutes"
-              placeholder="mm:ss"
-              inputmode="text"
-              pattern="[0-9:]*"
-            />
-          </div>
-
-          <div class="pause-col">
-            <div class="pause-label">Aktuell</div>
-            <div class="pause-actual">
-              <button id="openPausePicker" type="button">Ställ in</button>
-              <span id="pauseOverrideDisplay" class="pause-display">–:–</span>
-              <input type="hidden" id="pauseOverride" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="billboard">Billboard + vinjett (mm:ss)</label>
-        <input
-          type="text"
-          id="billboard"
-          placeholder="mm:ss"
-          inputmode="text"
-          pattern="[0-9:]*"
-        />
-      </div>
-
-      <div class="field">
-        <label for="highlights">Höjdpunkter (mm:ss)</label>
-        <input
-          type="text"
-          id="highlights"
-          placeholder="mm:ss"
-          inputmode="text"
-          pattern="[0-9:]*"
-        />
-      </div>
-
-      <div class="field">
-        <label for="talk">Extra prat (mm:ss)</label>
-        <input
-          type="text"
-          id="talk"
-          placeholder="mm:ss"
-          inputmode="text"
-          pattern="[0-9:]*"
-        />
-      </div>
-
-      <fieldset class="field">
-        <legend>Intervjutider hemmalag / bortalag</legend>
-
-        <div class="field">
-          <label for="interviewHome">Intervju hemmalag (mm:ss)</label>
-          <input
-            type="text"
-            id="interviewHome"
-            placeholder="mm:ss"
-            inputmode="text"
-            pattern="[0-9:]*"
-          />
-        </div>
-
-        <div class="field">
-          <label for="interviewAway">Intervju bortalag (mm:ss)</label>
-          <input
-            type="text"
-            id="interviewAway"
-            placeholder="mm:ss"
-            inputmode="text"
-            pattern="[0-9:]*"
-          />
-        </div>
-
-        <div class="output">
-          <strong>Totalt intervjupaket:</strong>
-          <span id="interviewTotal">0:00</span>
-        </div>
-      </fieldset>
-
-      <div class="actions">
-        <button id="resetBtn" class="secondary-btn">Reset</button>
-        <button id="calcBtn">Räkna ut tider</button>
-      </div>
-    </section>
-
-    <section class="card output-card" id="output" style="display:none;">
-      <div id="resultLines"></div>
-
-      <div class="countdown" id="countdownOnAir"></div>
-      <div class="countdown" id="countdownPeriod"></div>
-
-      <p class="small">
-        Alla tider är lokal tid. Du kan runda av till hel minut i körschemat.
-      </p>
-    </section>
-
-    <!-- NY: Kommentatorns valda sändningsstart (manuell nedräkning) -->
-    <section class="card" id="commentatorOnAirCard">
-      <h2>Kommentatorns sändningsstart</h2>
-
-      <div class="field">
-        <label for="commentatorOnAir">Sändningsstart (HH:MM:SS)</label>
-        <div class="inline-group">
-          <input type="time" id="commentatorOnAir" step="1" />
-          <button id="openCommentatorOnAirPicker" type="button">Ställ in</button>
-        </div>
-      </div>
-
-      <div class="output" id="commentatorOnAirBox" style="display:none;">
-        <div class="countdown" id="commentatorOnAirCountdown"></div>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- Scrollklocka för paus -->
-  <div id="pausePickerOverlay" class="timepicker-overlay" style="display:none;">
+  <div id="timePickerOverlay" class="timepicker-overlay hidden" aria-hidden="true">
     <div class="timepicker-box">
-      <div class="timepicker-title">Välj paustid</div>
+      <div id="timePickerTitle" class="timepicker-title">Välj tid</div>
+
       <div class="timepicker-scrolls">
-        <select id="pausePickerMinutes"></select>
-        <span>min</span>
-        <select id="pausePickerSeconds"></select>
-        <span>sek</span>
+        <select id="pickerHours" aria-label="Timmar"></select>
+        <span>:</span>
+        <select id="pickerMinutes" aria-label="Minuter"></select>
+        <span>:</span>
+        <select id="pickerSeconds" aria-label="Sekunder"></select>
       </div>
+
       <div class="timepicker-actions">
-        <button id="pausePickerCancel" type="button" class="secondary-btn">
-          Avbryt
-        </button>
-        <button id="pausePickerSet" type="button">
-          OK
-        </button>
+        <button id="pickerCancel" class="secondary-btn" type="button">Avbryt</button>
+        <button id="pickerSet" type="button">OK</button>
       </div>
     </div>
   </div>
 
-  <!-- Scrollklocka för Sändningsstart (HH:MM:SS) -->
-  <div
-    id="manualOnAirPickerOverlay"
-    class="timepicker-overlay"
-    style="display:none;"
-  >
-    <div class="timepicker-box">
-      <div class="timepicker-title">Välj sändningsstart</div>
-      <div class="timepicker-scrolls">
-        <select id="manualOnAirPickerHours"></select>
-        <span>h</span>
-        <select id="manualOnAirPickerMinutes"></select>
-        <span>min</span>
-        <select id="manualOnAirPickerSeconds"></select>
-        <span>sek</span>
-      </div>
-      <div class="timepicker-actions">
-        <button
-          id="manualOnAirPickerCancel"
-          type="button"
-          class="secondary-btn"
-        >
-          Avbryt
-        </button>
-        <button id="manualOnAirPickerSet" type="button">
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scrollklocka för Matchstart (HH:MM:SS) -->
-  <div
-    id="manualMatchStartPickerOverlay"
-    class="timepicker-overlay"
-    style="display:none;"
-  >
-    <div class="timepicker-box">
-      <div class="timepicker-title">Välj matchstart / nedsläpp</div>
-      <div class="timepicker-scrolls">
-        <select id="manualMatchStartPickerHours"></select>
-        <span>h</span>
-        <select id="manualMatchStartPickerMinutes"></select>
-        <span>min</span>
-        <select id="manualMatchStartPickerSeconds"></select>
-        <span>sek</span>
-      </div>
-      <div class="timepicker-actions">
-        <button
-          id="manualMatchStartPickerCancel"
-          type="button"
-          class="secondary-btn"
-        >
-          Avbryt
-        </button>
-        <button id="manualMatchStartPickerSet" type="button">
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- NY: Scrollklocka för kommentatorns sändningsstart (HH:MM:SS) -->
-  <div
-    id="commentatorOnAirPickerOverlay"
-    class="timepicker-overlay"
-    style="display:none;"
-  >
-    <div class="timepicker-box">
-      <div class="timepicker-title">Välj kommentatorns sändningsstart</div>
-      <div class="timepicker-scrolls">
-        <select id="commentatorOnAirPickerHours"></select>
-        <span>h</span>
-        <select id="commentatorOnAirPickerMinutes"></select>
-        <span>min</span>
-        <select id="commentatorOnAirPickerSeconds"></select>
-        <span>sek</span>
-      </div>
-      <div class="timepicker-actions">
-        <button
-          id="commentatorOnAirPickerCancel"
-          type="button"
-          class="secondary-btn"
-        >
-          Avbryt
-        </button>
-        <button id="commentatorOnAirPickerSet" type="button">
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+  <script src="pausklocka_sida1_app.js"></script>
 </body>
 </html>
