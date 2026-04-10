@@ -83,7 +83,7 @@ function updateCountdown() {
     const billboardRemaining = BILLBOARD_SECONDS + diff;
 
     if (billboardRemaining > 0) {
-      showCountdown("Billboard", formatDuration(billboardRemaining), false);
+      showCountdown("Billboard", formatDuration(billboardRemaining), true);
       return;
     }
 
