@@ -5,14 +5,15 @@ const STORAGE_KEYS = {
   interviewHome: "interview_home",
   interviewAway: "interview_away",
   countdownDuration: "countdown_duration",
-  selectedPreset: "selected_preset"
+  selectedPreset: "selected_preset",
+  periodEnd: "period_end"
 };
 
 const PRESETS = {
   bandy: {
     label: "Bandy",
     pauseDuration: 18 * 60,
-    billboardDuration: 18
+    billboardDuration: 80
   },
   innebandy: {
     label: "Innebandy",
@@ -22,12 +23,12 @@ const PRESETS = {
   ishockey: {
     label: "Ishockey",
     pauseDuration: 18 * 60,
-    billboardDuration: 18
+    billboardDuration: 20
   },
   fotboll: {
     label: "Fotboll",
     pauseDuration: 15 * 60,
-    billboardDuration: 18
+    billboardDuration: 30
   },
   custom: {
     label: "Custom"
@@ -36,14 +37,15 @@ const PRESETS = {
 
 const state = {
   pauseDuration: 18 * 60,
-  billboardDuration: 18,
+  billboardDuration: 20,
   highlightsDuration: 0,
   interviewHome: 0,
   interviewAway: 0,
   countdownDuration: 5 * 60,
   selectedPreset: "ishockey",
+  periodEnd: null,
   countdownRemaining: 5 * 60,
-  billboardRemaining: 18,
+  billboardRemaining: 20,
   phase: "idle",
   timerId: null
 };
@@ -58,6 +60,7 @@ const countdownMetaEl = document.getElementById("countdownMeta");
 const openCountdownPickerBtn = document.getElementById("openCountdownPicker");
 const openPresetPickerBtn = document.getElementById("openPresetPicker");
 const openPausePickerBtn = document.getElementById("openPausePicker");
+const openPeriodEndPickerBtn = document.getElementById("openPeriodEndPicker");
 const openBillboardPickerBtn = document.getElementById("openBillboardPicker");
 const openHighlightsPickerBtn = document.getElementById("openHighlightsPicker");
 const openInterviewHomePickerBtn = document.getElementById("openInterviewHomePicker");
@@ -67,13 +70,23 @@ const startCountdownBtn = document.getElementById("startCountdownBtn");
 const pauseCountdownBtn = document.getElementById("pauseCountdownBtn");
 const resetCountdownBtn = document.getElementById("resetCountdownBtn");
 
+const periodStartValueEl = document.getElementById("periodStartValue");
+const periodStartCountdownEl = document.getElementById("periodStartCountdown");
 const billboardHighlightsTotalEl = document.getElementById("billboardHighlightsTotal");
 const interviewTotalEl = document.getElementById("interviewTotal");
 
 const overlay = document.getElementById("timePickerOverlay");
 const titleEl = document.getElementById("timePickerTitle");
+const durationPickerEl = document.getElementById("durationPicker");
+const clockPickerEl = document.getElementById("clockPicker");
+
 const pickerMinutes = document.getElementById("pickerMinutes");
 const pickerSeconds = document.getElementById("pickerSeconds");
+
+const pickerHoursClock = document.getElementById("pickerHoursClock");
+const pickerMinutesClock = document.getElementById("pickerMinutesClock");
+const pickerSecondsClock = document.getElementById("pickerSecondsClock");
+
 const pickerCancel = document.getElementById("pickerCancel");
 const pickerSet = document.getElementById("pickerSet");
 
@@ -99,11 +112,17 @@ function saveState() {
   localStorage.setItem(STORAGE_KEYS.interviewAway, String(state.interviewAway));
   localStorage.setItem(STORAGE_KEYS.countdownDuration, String(state.countdownDuration));
   localStorage.setItem(STORAGE_KEYS.selectedPreset, state.selectedPreset);
+
+  if (state.periodEnd === null) {
+    localStorage.removeItem(STORAGE_KEYS.periodEnd);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.periodEnd, String(state.periodEnd));
+  }
 }
 
 function loadState() {
   state.pauseDuration = getStoredNumber(STORAGE_KEYS.pauseDuration, 18 * 60);
-  state.billboardDuration = getStoredNumber(STORAGE_KEYS.billboardDuration, 18);
+  state.billboardDuration = getStoredNumber(STORAGE_KEYS.billboardDuration, 20);
   state.highlightsDuration = getStoredNumber(STORAGE_KEYS.highlightsDuration, 0);
   state.interviewHome = getStoredNumber(STORAGE_KEYS.interviewHome, 0);
   state.interviewAway = getStoredNumber(STORAGE_KEYS.interviewAway, 0);
@@ -111,6 +130,12 @@ function loadState() {
 
   const storedPreset = localStorage.getItem(STORAGE_KEYS.selectedPreset);
   state.selectedPreset = storedPreset || "ishockey";
+
+  const storedPeriodEnd = localStorage.getItem(STORAGE_KEYS.periodEnd);
+  state.periodEnd = storedPeriodEnd ? Number(storedPeriodEnd) : null;
+  if (!Number.isFinite(state.periodEnd)) {
+    state.periodEnd = null;
+  }
 
   state.countdownRemaining = state.countdownDuration;
   state.billboardRemaining = state.billboardDuration;
@@ -125,6 +150,12 @@ function populateSelects() {
   for (let i = 0; i < 60; i += 1) {
     const label = String(i).padStart(2, "0");
     pickerSeconds.add(new Option(label, String(i)));
+    pickerMinutesClock.add(new Option(label, String(i)));
+    pickerSecondsClock.add(new Option(label, String(i)));
+  }
+
+  for (let i = 0; i < 24; i += 1) {
+    pickerHoursClock.add(new Option(String(i).padStart(2, "0"), String(i)));
   }
 }
 
@@ -136,10 +167,27 @@ function formatClock(date) {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
+function formatClockFromTimestamp(timestamp) {
+  return formatClock(new Date(timestamp));
+}
+
 function formatMinutesSeconds(totalSeconds) {
   const safe = Math.max(0, Math.floor(totalSeconds));
   const minutes = Math.floor(safe / 60);
   const seconds = safe % 60;
+  return `${minutes}:${pad(seconds)}`;
+}
+
+function formatDurationCountdown(totalSeconds) {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const seconds = safe % 60;
+
+  if (hours > 0) {
+    return `${hours}:${pad(minutes)}:${pad(seconds)}`;
+  }
+
   return `${minutes}:${pad(seconds)}`;
 }
 
@@ -148,7 +196,7 @@ function renderLiveClock() {
 }
 
 function getCountdownDisplayValue() {
-  if (state.phase === "billboard") {
+  if (state.phase === "billboard" || state.phase === "paused-billboard") {
     return formatMinutesSeconds(state.billboardRemaining);
   }
 
@@ -194,7 +242,7 @@ function renderCountdown() {
 
   if (state.phase === "paused-billboard") {
     countdownLabelEl.textContent = "Billboard";
-    countdownDisplayEl.textContent = formatMinutesSeconds(state.billboardRemaining);
+    countdownDisplayEl.textContent = getCountdownDisplayValue();
     countdownDisplayEl.classList.add("warning");
     countdownMetaEl.textContent = "Billboard pausad";
     return;
@@ -206,6 +254,44 @@ function renderCountdown() {
     countdownDisplayEl.classList.add("warning");
     countdownMetaEl.textContent = "Billboard avslutad";
   }
+}
+
+function getPeriodStartTimestamp() {
+  if (state.periodEnd === null) {
+    return null;
+  }
+
+  return state.periodEnd + state.pauseDuration * 1000;
+}
+
+function renderPeriodInfo() {
+  if (state.periodEnd === null) {
+    openPeriodEndPickerBtn.textContent = "Ställ tid";
+    periodStartValueEl.textContent = "--:--:--";
+    periodStartCountdownEl.textContent = "Ingen tid";
+    return;
+  }
+
+  openPeriodEndPickerBtn.textContent = formatClockFromTimestamp(state.periodEnd);
+
+  const periodStart = getPeriodStartTimestamp();
+
+  if (periodStart === null) {
+    periodStartValueEl.textContent = "--:--:--";
+    periodStartCountdownEl.textContent = "Ingen tid";
+    return;
+  }
+
+  periodStartValueEl.textContent = formatClockFromTimestamp(periodStart);
+
+  const diffSeconds = Math.floor((periodStart - Date.now()) / 1000);
+
+  if (diffSeconds > 0) {
+    periodStartCountdownEl.textContent = formatDurationCountdown(diffSeconds);
+    return;
+  }
+
+  periodStartCountdownEl.textContent = "Starttid passerad";
 }
 
 function renderButtons() {
@@ -236,13 +322,35 @@ function render() {
   renderCountdown();
   renderButtons();
   renderTotals();
+  renderPeriodInfo();
 }
 
-function openTimePicker(field, title, valueInSeconds) {
+function openDurationPicker(field, title, valueInSeconds) {
   activeField = field;
   titleEl.textContent = title;
+
+  durationPickerEl.classList.remove("hidden");
+  clockPickerEl.classList.add("hidden");
+
   pickerMinutes.value = String(Math.floor(valueInSeconds / 60));
   pickerSeconds.value = String(valueInSeconds % 60);
+
+  overlay.classList.remove("hidden");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
+function openClockPicker(field, title, timestamp) {
+  activeField = field;
+  titleEl.textContent = title;
+
+  durationPickerEl.classList.add("hidden");
+  clockPickerEl.classList.remove("hidden");
+
+  const baseDate = timestamp ? new Date(timestamp) : new Date();
+
+  pickerHoursClock.value = String(baseDate.getHours());
+  pickerMinutesClock.value = String(baseDate.getMinutes());
+  pickerSecondsClock.value = String(baseDate.getSeconds());
 
   overlay.classList.remove("hidden");
   overlay.setAttribute("aria-hidden", "false");
@@ -285,6 +393,22 @@ function applyPreset(presetKey) {
 }
 
 function applyPickedTime() {
+  if (activeField === "periodEnd") {
+    const pickedDate = new Date();
+    pickedDate.setHours(
+      Number(pickerHoursClock.value),
+      Number(pickerMinutesClock.value),
+      Number(pickerSecondsClock.value),
+      0
+    );
+
+    state.periodEnd = pickedDate.getTime();
+    saveState();
+    render();
+    closeTimePicker();
+    return;
+  }
+
   const totalSeconds =
     Number(pickerMinutes.value) * 60 + Number(pickerSeconds.value);
 
@@ -398,27 +522,31 @@ function resetFlow() {
 
 function bindEvents() {
   openCountdownPickerBtn.addEventListener("click", () => {
-    openTimePicker("countdown", "Countdown", state.countdownDuration);
+    openDurationPicker("countdown", "Countdown", state.countdownDuration);
   });
 
   openPausePickerBtn.addEventListener("click", () => {
-    openTimePicker("pause", "Pauslängd", state.pauseDuration);
+    openDurationPicker("pause", "Pauslängd", state.pauseDuration);
+  });
+
+  openPeriodEndPickerBtn.addEventListener("click", () => {
+    openClockPicker("periodEnd", "Perioden slutade", state.periodEnd);
   });
 
   openBillboardPickerBtn.addEventListener("click", () => {
-    openTimePicker("billboard", "Billboard", state.billboardDuration);
+    openDurationPicker("billboard", "Billboard", state.billboardDuration);
   });
 
   openHighlightsPickerBtn.addEventListener("click", () => {
-    openTimePicker("highlights", "Highlights", state.highlightsDuration);
+    openDurationPicker("highlights", "Highlights", state.highlightsDuration);
   });
 
   openInterviewHomePickerBtn.addEventListener("click", () => {
-    openTimePicker("interviewHome", "Intervju hemma", state.interviewHome);
+    openDurationPicker("interviewHome", "Intervju hemma", state.interviewHome);
   });
 
   openInterviewAwayPickerBtn.addEventListener("click", () => {
-    openTimePicker("interviewAway", "Intervju borta", state.interviewAway);
+    openDurationPicker("interviewAway", "Intervju borta", state.interviewAway);
   });
 
   openPresetPickerBtn.addEventListener("click", openPresetPicker);
@@ -459,6 +587,7 @@ function init() {
 
   setInterval(() => {
     renderLiveClock();
+    renderPeriodInfo();
   }, 1000);
 }
 
