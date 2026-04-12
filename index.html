@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pausklocka – Sändningsstart</title>
   <link rel="stylesheet" href="style.css" />
-  <a href="/pausinstallningar/">Pausinställningar</a>
 </head>
 <body>
   <main class="app-shell">
     <header class="app-header">
+      <a href="/pausinstallningar/" class="back-link">Pausinställningar</a>
       <h1 class="app-title">Pausklocka</h1>
       <div id="liveClock" class="live-clock">--:--:--</div>
     </header>
@@ -17,6 +17,7 @@
     <section class="card countdown-card">
       <div id="countdownLabel" class="card-label">Nedräkning till sändning</div>
       <div id="onAirCountdown" class="countdown-value">Ingen tid vald</div>
+      <div id="countdownMeta" class="countdown-meta">Ställ tider för att starta flödet</div>
     </section>
 
     <section class="card times-card">
@@ -30,11 +31,15 @@
         <div class="split-info">
           <div class="split-row">
             <span class="split-label">Billboard</span>
-            <span class="split-value">0:18</span>
+            <span id="billboardDisplay" class="split-value">0:18</span>
           </div>
           <div class="split-row">
             <span class="split-label">Intervjuer</span>
-            <span class="split-value">1:58</span>
+            <span id="interviewDisplay" class="split-value">0:00</span>
+          </div>
+          <div class="split-row split-row-total">
+            <span class="split-label">Totalt</span>
+            <span id="occupiedDisplay" class="split-value">0:18</span>
           </div>
         </div>
       </div>
