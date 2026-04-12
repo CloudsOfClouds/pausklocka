@@ -36,11 +36,26 @@
     <section class="card">
       <div class="card-label">Pauslängd</div>
       <button id="openPausePicker" class="time-pill medium-pill" type="button">18:00</button>
+
+      <div class="subsection-gap"></div>
+
+      <div class="card-label small-card-label">Perioden slutade</div>
+      <button id="openPeriodEndPicker" class="time-pill medium-pill" type="button">Ställ tid</button>
+
+      <div class="info-total">
+        <span class="info-total-label">Periodstart/halvlek</span>
+        <span id="periodStartValue" class="info-total-value">--:--:--</span>
+      </div>
+
+      <div class="info-total">
+        <span class="info-total-label">Nedräkning till periodstart/halvlek</span>
+        <span id="periodStartCountdown" class="info-total-value">Ingen tid</span>
+      </div>
     </section>
 
     <section class="card">
       <div class="card-label">Billboard</div>
-      <button id="openBillboardPicker" class="time-pill medium-pill" type="button">0:18</button>
+      <button id="openBillboardPicker" class="time-pill medium-pill" type="button">0:20</button>
     </section>
 
     <section class="card">
@@ -49,7 +64,7 @@
 
       <div class="info-total">
         <span class="info-total-label">Totalt billboard + highlights</span>
-        <span id="billboardHighlightsTotal" class="info-total-value">0:18</span>
+        <span id="billboardHighlightsTotal" class="info-total-value">0:20</span>
       </div>
     </section>
 
@@ -83,6 +98,14 @@
         <select id="pickerMinutes" aria-label="Minuter"></select>
         <span>:</span>
         <select id="pickerSeconds" aria-label="Sekunder"></select>
+      </div>
+
+      <div id="clockPicker" class="timepicker-scrolls hidden">
+        <select id="pickerHoursClock" aria-label="Timmar"></select>
+        <span>:</span>
+        <select id="pickerMinutesClock" aria-label="Minuter"></select>
+        <span>:</span>
+        <select id="pickerSecondsClock" aria-label="Sekunder"></select>
       </div>
 
       <div class="timepicker-actions">
