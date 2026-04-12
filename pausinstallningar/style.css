@@ -1,6 +1,11 @@
 body {
   background: #111;
   color: white;
-  font-family: Arial, sans-serif;
-  padding: 2rem;
+  font-family: Arial;
+  padding: 20px;
+}
+
+button {
+  padding: 10px;
+  margin: 10px 0;
 }
