@@ -228,9 +228,12 @@ select {
   padding: 16px;
 }
 
-.timepicker-overlay.hidden,
-.hidden {
+.timepicker-overlay.hidden {
   display: none;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .timepicker-box {
@@ -254,6 +257,10 @@ select {
   justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
+}
+
+.timepicker-scrolls.hidden {
+  display: none !important;
 }
 
 .timepicker-scrolls span {
