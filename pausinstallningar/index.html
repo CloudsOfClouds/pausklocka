@@ -30,7 +30,7 @@
 
     <section class="card">
       <div class="card-label">Presets</div>
-      <button id="openPresetPicker" class="time-pill medium-pill" type="button">Välj sport</button>
+      <button id="openPresetPicker" class="time-pill medium-pill" type="button">Välj preset</button>
     </section>
 
     <section class="card">
@@ -88,24 +88,57 @@
         <span id="interviewTotal" class="info-total-value">0:00</span>
       </div>
     </section>
+
+    <button id="fullResetBtn" class="full-reset-btn" type="button">Reset</button>
   </main>
 
   <div id="timePickerOverlay" class="timepicker-overlay hidden" aria-hidden="true">
     <div class="timepicker-box">
       <div id="timePickerTitle" class="timepicker-title">Välj tid</div>
 
-      <div id="durationPicker" class="timepicker-scrolls">
-        <select id="pickerMinutes" aria-label="Minuter"></select>
-        <span>:</span>
-        <select id="pickerSeconds" aria-label="Sekunder"></select>
+      <div id="durationPicker" class="picker-grid">
+        <div class="picker-column">
+          <div class="picker-label">Min</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="durationMinutes" data-adjust="1">+</button>
+          <div id="durationMinutesDisplay" class="picker-value">05</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="durationMinutes" data-adjust="-1">−</button>
+        </div>
+
+        <div class="picker-separator">:</div>
+
+        <div class="picker-column">
+          <div class="picker-label">Sek</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="durationSeconds" data-adjust="1">+</button>
+          <div id="durationSecondsDisplay" class="picker-value">00</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="durationSeconds" data-adjust="-1">−</button>
+        </div>
       </div>
 
-      <div id="clockPicker" class="timepicker-scrolls hidden">
-        <select id="pickerHoursClock" aria-label="Timmar"></select>
-        <span>:</span>
-        <select id="pickerMinutesClock" aria-label="Minuter"></select>
-        <span>:</span>
-        <select id="pickerSecondsClock" aria-label="Sekunder"></select>
+      <div id="clockPicker" class="picker-grid hidden">
+        <div class="picker-column">
+          <div class="picker-label">Tim</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockHours" data-adjust="1">+</button>
+          <div id="clockHoursDisplay" class="picker-value">20</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockHours" data-adjust="-1">−</button>
+        </div>
+
+        <div class="picker-separator">:</div>
+
+        <div class="picker-column">
+          <div class="picker-label">Min</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockMinutes" data-adjust="1">+</button>
+          <div id="clockMinutesDisplay" class="picker-value">35</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockMinutes" data-adjust="-1">−</button>
+        </div>
+
+        <div class="picker-separator">:</div>
+
+        <div class="picker-column">
+          <div class="picker-label">Sek</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockSeconds" data-adjust="1">+</button>
+          <div id="clockSecondsDisplay" class="picker-value">00</div>
+          <button class="picker-adjust-btn" type="button" data-adjust-target="clockSeconds" data-adjust="-1">−</button>
+        </div>
       </div>
 
       <div class="timepicker-actions">
@@ -117,7 +150,7 @@
 
   <div id="presetPickerOverlay" class="timepicker-overlay hidden" aria-hidden="true">
     <div class="timepicker-box">
-      <div class="timepicker-title">Välj sport</div>
+      <div class="timepicker-title">Välj preset</div>
 
       <div class="preset-list">
         <button class="preset-option" type="button" data-preset="bandy">Bandy</button>
