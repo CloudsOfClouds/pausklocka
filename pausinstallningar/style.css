@@ -14,8 +14,7 @@ body {
   background: radial-gradient(circle at top, #111827, #020617 68%);
 }
 
-button,
-select {
+button {
   font: inherit;
 }
 
@@ -218,6 +217,22 @@ select {
   text-transform: uppercase;
 }
 
+.full-reset-btn {
+  margin-top: 8px;
+  min-height: 56px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 16px;
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.full-reset-btn:active {
+  transform: scale(0.99);
+}
+
 .timepicker-overlay {
   position: fixed;
   inset: 0;
@@ -237,7 +252,7 @@ select {
 }
 
 .timepicker-box {
-  width: min(320px, 100%);
+  width: min(360px, 100%);
   background: #020617;
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 18px;
@@ -248,41 +263,63 @@ select {
   text-align: center;
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-.timepicker-scrolls {
+.picker-grid {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
-.timepicker-scrolls.hidden {
-  display: none !important;
+.picker-column {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
 }
 
-.timepicker-scrolls span {
-  font-size: 1.4rem;
+.picker-label {
+  font-size: 0.85rem;
   font-weight: 700;
+  color: #cbd5e1;
+  text-transform: uppercase;
 }
 
-select {
-  width: 96px;
-  min-height: 52px;
+.picker-adjust-btn {
+  width: 76px;
+  min-height: 42px;
   border-radius: 12px;
-  border: 1px solid #475569;
-  background: #0f172a;
-  color: #e5e7eb;
-  text-align: center;
-  font-size: 1.25rem;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(30, 41, 59, 0.95);
+  color: #f8fafc;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-#pickerHoursClock,
-#pickerMinutesClock,
-#pickerSecondsClock {
-  width: 78px;
+.picker-value {
+  width: 76px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.picker-separator {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  align-self: center;
+  padding-top: 22px;
 }
 
 .timepicker-actions {
@@ -354,8 +391,20 @@ select {
     font-size: 1.05rem;
   }
 
-  .action-btn {
-    min-height: 44px;
+  .action-btn,
+  .full-reset-btn {
+    min-height: 50px;
+  }
+
+  .picker-adjust-btn {
+    width: 70px;
+    min-height: 40px;
+  }
+
+  .picker-value {
+    width: 70px;
+    min-height: 54px;
+    font-size: 1.65rem;
   }
 
   .info-total-label,
