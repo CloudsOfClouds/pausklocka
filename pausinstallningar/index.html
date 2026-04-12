@@ -2,24 +2,114 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pausinställningar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pausklocka – Pausinställningar</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="app-shell">
+    <header class="app-header">
+      <a href="/" class="back-link">← Tillbaka</a>
+      <h1 class="app-title">Pausinställningar</h1>
+      <div id="liveClock" class="live-clock">--:--:--</div>
+    </header>
 
-  <h1>Pausinställningar</h1>
+    <section class="card countdown-card">
+      <div id="countdownLabel" class="card-label">Countdown</div>
+      <div id="countdownDisplay" class="countdown-value">5:00</div>
+      <div id="countdownMeta" class="countdown-meta">Redo att starta</div>
 
-  <button id="setPreset">Sätt hockey preset</button>
+      <button id="openCountdownPicker" class="time-pill" type="button">Ställ countdown</button>
 
-  <p>Billboard: <span id="billboard">0</span> sek</p>
-  <p>Intervju: <span id="interview">0</span> sek</p>
+      <div class="action-row">
+        <button id="startCountdownBtn" class="action-btn primary-btn" type="button">Starta</button>
+        <button id="pauseCountdownBtn" class="action-btn secondary-btn-solid" type="button">Pausa</button>
+        <button id="resetCountdownBtn" class="action-btn secondary-btn-solid" type="button">Återställ</button>
+      </div>
+    </section>
 
-  <button id="save">Spara till sida 1</button>
+    <section class="card">
+      <div class="card-label">Presets</div>
+      <button id="openPresetPicker" class="time-pill medium-pill" type="button">Välj sport</button>
+    </section>
 
-  <br><br>
-  <a href="/">← Tillbaka</a>
+    <section class="card">
+      <div class="card-label">Pauslängd</div>
+      <button id="openPausePicker" class="time-pill medium-pill" type="button">18:00</button>
+    </section>
 
-  <script src="app.js"></script>
+    <section class="card">
+      <div class="card-label">Billboard</div>
+      <button id="openBillboardPicker" class="time-pill medium-pill" type="button">0:18</button>
+    </section>
+
+    <section class="card">
+      <div class="card-label">Highlights</div>
+      <button id="openHighlightsPicker" class="time-pill medium-pill" type="button">0:00</button>
+
+      <div class="info-total">
+        <span class="info-total-label">Totalt billboard + highlights</span>
+        <span id="billboardHighlightsTotal" class="info-total-value">0:18</span>
+      </div>
+    </section>
+
+    <section class="card interviews-card">
+      <div class="card-label">Intervjuer</div>
+
+      <div class="dual-buttons">
+        <div class="dual-block">
+          <div class="mini-label">Hemma</div>
+          <button id="openInterviewHomePicker" class="time-pill small-pill" type="button">0:00</button>
+        </div>
+
+        <div class="dual-block">
+          <div class="mini-label">Borta</div>
+          <button id="openInterviewAwayPicker" class="time-pill small-pill" type="button">0:00</button>
+        </div>
+      </div>
+
+      <div class="info-total">
+        <span class="info-total-label">Totalt intervjupaket</span>
+        <span id="interviewTotal" class="info-total-value">0:00</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="timePickerOverlay" class="timepicker-overlay hidden" aria-hidden="true">
+    <div class="timepicker-box">
+      <div id="timePickerTitle" class="timepicker-title">Välj tid</div>
+
+      <div id="durationPicker" class="timepicker-scrolls">
+        <select id="pickerMinutes" aria-label="Minuter"></select>
+        <span>:</span>
+        <select id="pickerSeconds" aria-label="Sekunder"></select>
+      </div>
+
+      <div class="timepicker-actions">
+        <button id="pickerCancel" class="secondary-btn" type="button">Avbryt</button>
+        <button id="pickerSet" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="presetPickerOverlay" class="timepicker-overlay hidden" aria-hidden="true">
+    <div class="timepicker-box">
+      <div class="timepicker-title">Välj sport</div>
+
+      <div class="preset-list">
+        <button class="preset-option" type="button" data-preset="bandy">Bandy</button>
+        <button class="preset-option" type="button" data-preset="innebandy">Innebandy</button>
+        <button class="preset-option" type="button" data-preset="ishockey">Ishockey</button>
+        <button class="preset-option" type="button" data-preset="fotboll">Fotboll</button>
+        <button class="preset-option" type="button" data-preset="custom">Custom</button>
+      </div>
+
+      <div class="timepicker-actions">
+        <button id="presetCancel" class="secondary-btn" type="button">Stäng</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
