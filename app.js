@@ -4,7 +4,9 @@ let onAirFlowArmed = false;
 const STORAGE_KEYS = {
   billboardDuration: "billboard_duration",
   interviewHome: "interview_home",
-  interviewAway: "interview_away"
+  interviewAway: "interview_away",
+  onAirTime: "on_air_time",
+  matchTime: "match_time"
 };
 
 const targets = {
@@ -42,8 +44,47 @@ function getStoredNumber(key, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function saveTargetTimes() {
+  if (targets.onAir === null) {
+    localStorage.removeItem(STORAGE_KEYS.onAirTime);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.onAirTime, String(targets.onAir));
+  }
+
+  if (targets.match === null) {
+    localStorage.removeItem(STORAGE_KEYS.matchTime);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.matchTime, String(targets.match));
+  }
+}
+
+function loadTargetTimes() {
+  const storedOnAir = localStorage.getItem(STORAGE_KEYS.onAirTime);
+  const storedMatch = localStorage.getItem(STORAGE_KEYS.matchTime);
+
+  targets.onAir = storedOnAir !== null ? Number(storedOnAir) : null;
+  targets.match = storedMatch !== null ? Number(storedMatch) : null;
+
+  if (!Number.isFinite(targets.onAir)) {
+    targets.onAir = null;
+  }
+
+  if (!Number.isFinite(targets.match)) {
+    targets.match = null;
+  }
+
+  if (targets.onAir !== null) {
+    onAirBtn.textContent = toClock(targets.onAir);
+    onAirFlowArmed = signedDiffToTarget(targets.onAir) > 0;
+  }
+
+  if (targets.match !== null) {
+    matchBtn.textContent = toClock(targets.match);
+  }
+}
+
 function getBillboardSeconds() {
-  return getStoredNumber(STORAGE_KEYS.billboardDuration, 18);
+  return getStoredNumber(STORAGE_KEYS.billboardDuration, 20);
 }
 
 function getInterviewTotalSeconds() {
@@ -220,6 +261,7 @@ document.getElementById("pickerSet").addEventListener("click", () => {
     matchBtn.textContent = toClock(sec);
   }
 
+  saveTargetTimes();
   closePicker();
   updateCountdown();
 });
@@ -240,7 +282,9 @@ overlay.addEventListener("click", (event) => {
 window.addEventListener("storage", () => {
   updateInfoPanel();
   updateCountdown();
+  loadTargetTimes();
 });
 
+loadTargetTimes();
 tick();
 setInterval(tick, 1000);
