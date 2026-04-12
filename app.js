@@ -1,25 +1,56 @@
 let activeTarget = null;
 let onAirFlowArmed = false;
 
-const BILLBOARD_SECONDS = 18;
+const STORAGE_KEYS = {
+  billboardDuration: "billboard_duration",
+  interviewHome: "interview_home",
+  interviewAway: "interview_away"
+};
 
 const targets = {
   onAir: null,
-  match: null,
+  match: null
 };
 
 const liveClockEl = document.getElementById("liveClock");
 const countdownLabelEl = document.getElementById("countdownLabel");
 const onAirCountdownEl = document.getElementById("onAirCountdown");
+const countdownMetaEl = document.getElementById("countdownMeta");
+
 const onAirBtn = document.getElementById("openOnAirPicker");
 const matchBtn = document.getElementById("openMatchPicker");
 const nextBtn = document.getElementById("nextBtn");
+
+const billboardDisplayEl = document.getElementById("billboardDisplay");
+const interviewDisplayEl = document.getElementById("interviewDisplay");
+const occupiedDisplayEl = document.getElementById("occupiedDisplay");
 
 const overlay = document.getElementById("timePickerOverlay");
 const titleEl = document.getElementById("timePickerTitle");
 const hSel = document.getElementById("pickerHours");
 const mSel = document.getElementById("pickerMinutes");
 const sSel = document.getElementById("pickerSeconds");
+
+function getStoredNumber(key, fallback) {
+  const raw = localStorage.getItem(key);
+
+  if (raw === null) {
+    return fallback;
+  }
+
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function getBillboardSeconds() {
+  return getStoredNumber(STORAGE_KEYS.billboardDuration, 18);
+}
+
+function getInterviewTotalSeconds() {
+  const home = getStoredNumber(STORAGE_KEYS.interviewHome, 0);
+  const away = getStoredNumber(STORAGE_KEYS.interviewAway, 0);
+  return home + away;
+}
 
 function nowSeconds() {
   const n = new Date();
@@ -35,7 +66,7 @@ function toClock(sec) {
 }
 
 function formatDuration(totalSeconds) {
-  const sec = Math.max(0, totalSeconds);
+  const sec = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(sec / 3600);
   const minutes = Math.floor((sec % 3600) / 60);
   const seconds = sec % 60;
@@ -51,6 +82,13 @@ function formatDuration(totalSeconds) {
   return `${seconds} s`;
 }
 
+function formatMinutesSeconds(totalSeconds) {
+  const sec = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(sec / 60);
+  const seconds = sec % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 function signedDiffToTarget(target) {
   return target - nowSeconds();
 }
@@ -59,54 +97,83 @@ function updateLiveClock() {
   liveClockEl.textContent = toClock(nowSeconds());
 }
 
-function showCountdown(label, value, warning = false) {
+function updateInfoPanel() {
+  const billboardSeconds = getBillboardSeconds();
+  const interviewSeconds = getInterviewTotalSeconds();
+  const occupiedSeconds = billboardSeconds + interviewSeconds;
+
+  billboardDisplayEl.textContent = formatMinutesSeconds(billboardSeconds);
+  interviewDisplayEl.textContent = formatMinutesSeconds(interviewSeconds);
+  occupiedDisplayEl.textContent = formatMinutesSeconds(occupiedSeconds);
+}
+
+function showCountdown(label, value, meta = "", warning = false) {
   countdownLabelEl.textContent = label;
   onAirCountdownEl.textContent = value;
+  countdownMetaEl.textContent = meta;
   onAirCountdownEl.classList.toggle("warning", warning);
 }
 
 function updateCountdown() {
   if (targets.onAir === null) {
-    showCountdown("Nedräkning till sändning", "Ingen tid vald", false);
+    showCountdown(
+      "Nedräkning till sändning",
+      "Ingen tid vald",
+      "Ställ tider för att starta flödet",
+      false
+    );
     return;
   }
 
+  const billboardSeconds = getBillboardSeconds();
   const diff = signedDiffToTarget(targets.onAir);
 
   if (diff > 0) {
     onAirFlowArmed = true;
-    showCountdown("Nedräkning till sändning", formatDuration(diff), diff <= 15);
+    showCountdown(
+      "Nedräkning till sändning",
+      formatDuration(diff),
+      `Billboard: ${formatMinutesSeconds(billboardSeconds)}`,
+      diff <= 15
+    );
     return;
   }
 
   if (onAirFlowArmed) {
-    const billboardRemaining = BILLBOARD_SECONDS + diff;
+    const billboardRemaining = billboardSeconds + diff;
 
     if (billboardRemaining > 0) {
-      showCountdown("Billboard", formatDuration(billboardRemaining), true);
+      showCountdown(
+        "Billboard",
+        formatDuration(billboardRemaining),
+        `Billboardlängd: ${formatMinutesSeconds(billboardSeconds)}`,
+        true
+      );
       return;
     }
 
-    showCountdown("I sändning", "I sändning", true);
+    showCountdown("I sändning", "I sändning", "Billboard avslutad", true);
     return;
   }
 
   if (diff >= -60) {
-    showCountdown("Sändning", "Sändning", true);
+    showCountdown("Sändning", "Sändning", "Start nyligen passerad", true);
     return;
   }
 
-  showCountdown("Starttid passerad", "Starttid passerad", true);
+  showCountdown("Starttid passerad", "Starttid passerad", "Välj ny tid", true);
 }
 
 function tick() {
   updateLiveClock();
+  updateInfoPanel();
   updateCountdown();
 }
 
 for (let i = 0; i < 24; i += 1) {
   hSel.add(new Option(String(i).padStart(2, "0"), String(i)));
 }
+
 for (let i = 0; i < 60; i += 1) {
   const value = String(i);
   const label = String(i).padStart(2, "0");
@@ -120,6 +187,7 @@ function openPicker(title, key) {
 
   const current = targets[key] ?? nowSeconds();
   const safe = ((current % 86400) + 86400) % 86400;
+
   hSel.value = String(Math.floor(safe / 3600));
   mSel.value = String(Math.floor((safe % 3600) / 60));
   sSel.value = String(safe % 60);
@@ -160,13 +228,18 @@ onAirBtn.addEventListener("click", () => openPicker("Sändningsstart", "onAir"))
 matchBtn.addEventListener("click", () => openPicker("Matchstart", "match"));
 
 nextBtn.addEventListener("click", () => {
-  alert("Sida 2 är inte byggd ännu.");
+  window.location.href = "/pausinstallningar/";
 });
 
 overlay.addEventListener("click", (event) => {
   if (event.target === overlay) {
     closePicker();
   }
+});
+
+window.addEventListener("storage", () => {
+  updateInfoPanel();
+  updateCountdown();
 });
 
 tick();
