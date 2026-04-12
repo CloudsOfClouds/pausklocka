@@ -9,6 +9,12 @@ const STORAGE_KEYS = {
   matchTime: "match_time"
 };
 
+const DEFAULTS = {
+  billboardDuration: 20,
+  interviewHome: 0,
+  interviewAway: 0
+};
+
 const targets = {
   onAir: null,
   match: null
@@ -44,6 +50,16 @@ function getStoredNumber(key, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function resetButtonsIfNeeded() {
+  if (targets.onAir === null) {
+    onAirBtn.textContent = "Ställ tid";
+  }
+
+  if (targets.match === null) {
+    matchBtn.textContent = "Ställ tid";
+  }
+}
+
 function saveTargetTimes() {
   if (targets.onAir === null) {
     localStorage.removeItem(STORAGE_KEYS.onAirTime);
@@ -76,20 +92,24 @@ function loadTargetTimes() {
   if (targets.onAir !== null) {
     onAirBtn.textContent = toClock(targets.onAir);
     onAirFlowArmed = signedDiffToTarget(targets.onAir) > 0;
+  } else {
+    onAirFlowArmed = false;
   }
 
   if (targets.match !== null) {
     matchBtn.textContent = toClock(targets.match);
   }
+
+  resetButtonsIfNeeded();
 }
 
 function getBillboardSeconds() {
-  return getStoredNumber(STORAGE_KEYS.billboardDuration, 20);
+  return getStoredNumber(STORAGE_KEYS.billboardDuration, DEFAULTS.billboardDuration);
 }
 
 function getInterviewTotalSeconds() {
-  const home = getStoredNumber(STORAGE_KEYS.interviewHome, 0);
-  const away = getStoredNumber(STORAGE_KEYS.interviewAway, 0);
+  const home = getStoredNumber(STORAGE_KEYS.interviewHome, DEFAULTS.interviewHome);
+  const away = getStoredNumber(STORAGE_KEYS.interviewAway, DEFAULTS.interviewAway);
   return home + away;
 }
 
@@ -280,9 +300,9 @@ overlay.addEventListener("click", (event) => {
 });
 
 window.addEventListener("storage", () => {
+  loadTargetTimes();
   updateInfoPanel();
   updateCountdown();
-  loadTargetTimes();
 });
 
 loadTargetTimes();
