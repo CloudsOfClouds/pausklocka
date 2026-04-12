@@ -79,6 +79,16 @@ select {
   text-align: center;
 }
 
+.small-card-label {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+}
+
+.subsection-gap {
+  height: 14px;
+}
+
 .countdown-card {
   text-align: center;
 }
@@ -218,7 +228,8 @@ select {
   padding: 16px;
 }
 
-.timepicker-overlay.hidden {
+.timepicker-overlay.hidden,
+.hidden {
   display: none;
 }
 
@@ -259,6 +270,12 @@ select {
   color: #e5e7eb;
   text-align: center;
   font-size: 1.25rem;
+}
+
+#pickerHoursClock,
+#pickerMinutesClock,
+#pickerSecondsClock {
+  width: 78px;
 }
 
 .timepicker-actions {
