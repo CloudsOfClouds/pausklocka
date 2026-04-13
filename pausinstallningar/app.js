@@ -91,6 +91,7 @@ const startCountdownBtn = document.getElementById("startCountdownBtn");
 const pauseCountdownBtn = document.getElementById("pauseCountdownBtn");
 const resetCountdownBtn = document.getElementById("resetCountdownBtn");
 const fullResetBtn = document.getElementById("fullResetBtn");
+const goToStartBtn = document.getElementById("goToStartBtn");
 
 const periodStartValueEl = document.getElementById("periodStartValue");
 const periodStartCountdownEl = document.getElementById("periodStartCountdown");
@@ -677,6 +678,9 @@ function bindEvents() {
   pauseCountdownBtn.addEventListener("click", pauseFlow);
   resetCountdownBtn.addEventListener("click", resetFlow);
   fullResetBtn.addEventListener("click", resetAll);
+  goToStartBtn.addEventListener("click", () => {
+    window.location.href = "/";
+  });
 }
 
 function init() {
