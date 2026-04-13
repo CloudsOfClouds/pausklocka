@@ -8,9 +8,7 @@
 </head>
 <body>
   <main class="app-shell">
-    <header class="app-header">
-      <a href="/pausinstallningar/" class="back-link">Pausinställningar</a>
-      <h1 class="app-title">Pausklocka</h1>
+    <header class="app-header compact-header">
       <div id="liveClock" class="live-clock">--:--:--</div>
     </header>
 
@@ -20,7 +18,7 @@
       <div id="countdownMeta" class="countdown-meta">Ställ tider för att starta flödet</div>
     </section>
 
-    <section class="card times-card">
+    <section id="timesCard" class="card times-card">
       <div class="time-block">
         <div class="card-label">Sändningsstart</div>
         <button id="openOnAirPicker" class="time-pill" type="button">Ställ tid</button>
