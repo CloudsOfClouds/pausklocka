@@ -11,7 +11,7 @@ body {
   margin: 0;
   font-family: system-ui, sans-serif;
   color: #e5e7eb;
-  background: radial-gradient(circle at top, #111827, #020617 68%);
+  background: linear-gradient(#020617, #020617);
 }
 
 button {
