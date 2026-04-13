@@ -187,8 +187,7 @@ select {
 }
 
 body.focus-mode #supportCard,
-body.focus-mode #nextBtn,
-body.focus-mode .live-clock {
+body.focus-mode #nextBtn {
   opacity: 0.22;
   filter: saturate(0.7);
 }
