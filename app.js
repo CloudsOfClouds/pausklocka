@@ -50,80 +50,28 @@ function getStoredNumber(key, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function resetButtonsIfNeeded() {
-  if (targets.onAir === null) {
-    onAirBtn.textContent = "Ställ tid";
-  }
-
-  if (targets.match === null) {
-    matchBtn.textContent = "Ställ tid";
-  }
+function pad(value) {
+  return String(value).padStart(2, "0");
 }
 
-function saveTargetTimes() {
-  if (targets.onAir === null) {
-    localStorage.removeItem(STORAGE_KEYS.onAirTime);
-  } else {
-    localStorage.setItem(STORAGE_KEYS.onAirTime, String(targets.onAir));
-  }
-
-  if (targets.match === null) {
-    localStorage.removeItem(STORAGE_KEYS.matchTime);
-  } else {
-    localStorage.setItem(STORAGE_KEYS.matchTime, String(targets.match));
-  }
+function toClock(sec) {
+  const safe = ((sec % 86400) + 86400) % 86400;
+  const h = pad(Math.floor(safe / 3600));
+  const m = pad(Math.floor((safe % 3600) / 60));
+  const s = pad(safe % 60);
+  return `${h}:${m}:${s}`;
 }
 
-function loadTargetTimes() {
-  const storedOnAir = localStorage.getItem(STORAGE_KEYS.onAirTime);
-  const storedMatch = localStorage.getItem(STORAGE_KEYS.matchTime);
-
-  targets.onAir = storedOnAir !== null ? Number(storedOnAir) : null;
-  targets.match = storedMatch !== null ? Number(storedMatch) : null;
-
-  if (!Number.isFinite(targets.onAir)) {
-    targets.onAir = null;
-  }
-
-  if (!Number.isFinite(targets.match)) {
-    targets.match = null;
-  }
-
-  if (targets.onAir !== null) {
-    onAirBtn.textContent = toClock(targets.onAir);
-    onAirFlowArmed = signedDiffToTarget(targets.onAir) > 0;
-  } else {
-    onAirFlowArmed = false;
-  }
-
-  if (targets.match !== null) {
-    matchBtn.textContent = toClock(targets.match);
-  }
-
-  resetButtonsIfNeeded();
-}
-
-function getBillboardSeconds() {
-  return getStoredNumber(STORAGE_KEYS.billboardDuration, DEFAULTS.billboardDuration);
-}
-
-function getInterviewTotalSeconds() {
-  const home = getStoredNumber(STORAGE_KEYS.interviewHome, DEFAULTS.interviewHome);
-  const away = getStoredNumber(STORAGE_KEYS.interviewAway, DEFAULTS.interviewAway);
-  return home + away;
+function toClockShort(sec) {
+  const safe = ((sec % 86400) + 86400) % 86400;
+  const h = pad(Math.floor(safe / 3600));
+  const m = pad(Math.floor((safe % 3600) / 60));
+  return `${h}:${m}`;
 }
 
 function nowSeconds() {
   const n = new Date();
   return n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
-}
-
-function toClock(sec) {
-  const safe = ((sec % 86400) + 86400) % 86400;
-  const h = String(Math.floor(safe / 3600)).padStart(2, "0");
-  const m = String(Math.floor((safe % 3600) / 60)).padStart(2, "0");
-  const s = String(safe % 60).padStart(2, "0");
-  return `${h}:${m}:${s}`;
 }
 
 function formatDuration(totalSeconds) {
@@ -147,11 +95,74 @@ function formatMinutesSeconds(totalSeconds) {
   const sec = Math.max(0, Math.floor(totalSeconds));
   const minutes = Math.floor(sec / 60);
   const seconds = sec % 60;
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${pad(seconds)}`;
 }
 
 function signedDiffToTarget(target) {
   return target - nowSeconds();
+}
+
+function saveTargetTimes() {
+  if (targets.onAir === null) {
+    localStorage.removeItem(STORAGE_KEYS.onAirTime);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.onAirTime, String(targets.onAir));
+  }
+
+  if (targets.match === null) {
+    localStorage.removeItem(STORAGE_KEYS.matchTime);
+  } else {
+    localStorage.setItem(STORAGE_KEYS.matchTime, String(targets.match));
+  }
+}
+
+function resetButtonsIfNeeded() {
+  if (targets.onAir === null) {
+    onAirBtn.textContent = "Ställ tid";
+  }
+
+  if (targets.match === null) {
+    matchBtn.textContent = "Ställ tid";
+  }
+}
+
+function loadTargetTimes() {
+  const storedOnAir = localStorage.getItem(STORAGE_KEYS.onAirTime);
+  const storedMatch = localStorage.getItem(STORAGE_KEYS.matchTime);
+
+  targets.onAir = storedOnAir !== null ? Number(storedOnAir) : null;
+  targets.match = storedMatch !== null ? Number(storedMatch) : null;
+
+  if (!Number.isFinite(targets.onAir)) {
+    targets.onAir = null;
+  }
+
+  if (!Number.isFinite(targets.match)) {
+    targets.match = null;
+  }
+
+  if (targets.onAir !== null) {
+    onAirBtn.textContent = toClockShort(targets.onAir);
+    onAirFlowArmed = signedDiffToTarget(targets.onAir) > 0;
+  } else {
+    onAirFlowArmed = false;
+  }
+
+  if (targets.match !== null) {
+    matchBtn.textContent = toClockShort(targets.match);
+  }
+
+  resetButtonsIfNeeded();
+}
+
+function getBillboardSeconds() {
+  return getStoredNumber(STORAGE_KEYS.billboardDuration, DEFAULTS.billboardDuration);
+}
+
+function getInterviewTotalSeconds() {
+  const home = getStoredNumber(STORAGE_KEYS.interviewHome, DEFAULTS.interviewHome);
+  const away = getStoredNumber(STORAGE_KEYS.interviewAway, DEFAULTS.interviewAway);
+  return home + away;
 }
 
 function updateLiveClock() {
@@ -168,6 +179,10 @@ function updateInfoPanel() {
   occupiedDisplayEl.textContent = formatMinutesSeconds(occupiedSeconds);
 }
 
+function setFocusMode(isActive) {
+  document.body.classList.toggle("focus-mode", isActive);
+}
+
 function showCountdown(label, value, meta = "", warning = false) {
   countdownLabelEl.textContent = label;
   onAirCountdownEl.textContent = value;
@@ -177,6 +192,7 @@ function showCountdown(label, value, meta = "", warning = false) {
 
 function updateCountdown() {
   if (targets.onAir === null) {
+    setFocusMode(false);
     showCountdown(
       "Nedräkning till sändning",
       "Ingen tid vald",
@@ -191,6 +207,7 @@ function updateCountdown() {
 
   if (diff > 0) {
     onAirFlowArmed = true;
+    setFocusMode(diff <= 60);
     showCountdown(
       "Nedräkning till sändning",
       formatDuration(diff),
@@ -202,6 +219,7 @@ function updateCountdown() {
 
   if (onAirFlowArmed) {
     const billboardRemaining = billboardSeconds + diff;
+    setFocusMode(true);
 
     if (billboardRemaining > 0) {
       showCountdown(
@@ -218,10 +236,12 @@ function updateCountdown() {
   }
 
   if (diff >= -60) {
+    setFocusMode(true);
     showCountdown("Sändning", "Sändning", "Start nyligen passerad", true);
     return;
   }
 
+  setFocusMode(false);
   showCountdown("Starttid passerad", "Starttid passerad", "Välj ny tid", true);
 }
 
@@ -232,12 +252,12 @@ function tick() {
 }
 
 for (let i = 0; i < 24; i += 1) {
-  hSel.add(new Option(String(i).padStart(2, "0"), String(i)));
+  hSel.add(new Option(pad(i), String(i)));
 }
 
 for (let i = 0; i < 60; i += 1) {
+  const label = pad(i);
   const value = String(i);
-  const label = String(i).padStart(2, "0");
   mSel.add(new Option(label, value));
   sSel.add(new Option(label, value));
 }
@@ -246,12 +266,19 @@ function openPicker(title, key) {
   activeTarget = key;
   titleEl.textContent = title;
 
-  const current = targets[key] ?? nowSeconds();
-  const safe = ((current % 86400) + 86400) % 86400;
+  const current = targets[key];
 
-  hSel.value = String(Math.floor(safe / 3600));
-  mSel.value = String(Math.floor((safe % 3600) / 60));
-  sSel.value = String(safe % 60);
+  if (current === null) {
+    const now = new Date();
+    hSel.value = String(now.getHours());
+    mSel.value = String(now.getMinutes());
+    sSel.value = "0";
+  } else {
+    const safe = ((current % 86400) + 86400) % 86400;
+    hSel.value = String(Math.floor(safe / 3600));
+    mSel.value = String(Math.floor((safe % 3600) / 60));
+    sSel.value = String(safe % 60);
+  }
 
   overlay.classList.remove("hidden");
   overlay.setAttribute("aria-hidden", "false");
@@ -272,13 +299,13 @@ document.getElementById("pickerSet").addEventListener("click", () => {
 
   if (activeTarget === "onAir") {
     targets.onAir = sec;
-    onAirBtn.textContent = toClock(sec);
+    onAirBtn.textContent = toClockShort(sec);
     onAirFlowArmed = signedDiffToTarget(sec) > 0;
   }
 
   if (activeTarget === "match") {
     targets.match = sec;
-    matchBtn.textContent = toClock(sec);
+    matchBtn.textContent = toClockShort(sec);
   }
 
   saveTargetTimes();
