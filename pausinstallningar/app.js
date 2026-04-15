@@ -115,6 +115,10 @@ const pickerSet = document.getElementById("pickerSet");
 const presetOverlay = document.getElementById("presetPickerOverlay");
 const presetCancel = document.getElementById("presetCancel");
 
+const resetConfirmOverlay = document.getElementById("resetConfirmOverlay");
+const resetConfirmNoBtn = document.getElementById("resetConfirmNo");
+const resetConfirmYesBtn = document.getElementById("resetConfirmYes");
+
 function getStoredNumber(key, fallback) {
   const raw = localStorage.getItem(key);
 
@@ -398,6 +402,16 @@ function closePresetPicker() {
   presetOverlay.setAttribute("aria-hidden", "true");
 }
 
+function openResetConfirm() {
+  resetConfirmOverlay.classList.remove("hidden");
+  resetConfirmOverlay.setAttribute("aria-hidden", "false");
+}
+
+function closeResetConfirm() {
+  resetConfirmOverlay.classList.add("hidden");
+  resetConfirmOverlay.setAttribute("aria-hidden", "true");
+}
+
 function markCustomForManualChanges() {
   if (state.selectedPreset && state.selectedPreset !== "custom") {
     state.selectedPreset = "custom";
@@ -677,7 +691,21 @@ function bindEvents() {
   startCountdownBtn.addEventListener("click", startFlow);
   pauseCountdownBtn.addEventListener("click", pauseFlow);
   resetCountdownBtn.addEventListener("click", resetFlow);
-  fullResetBtn.addEventListener("click", resetAll);
+
+  fullResetBtn.addEventListener("click", openResetConfirm);
+
+  resetConfirmNoBtn.addEventListener("click", closeResetConfirm);
+  resetConfirmYesBtn.addEventListener("click", () => {
+    resetAll();
+    closeResetConfirm();
+  });
+
+  resetConfirmOverlay.addEventListener("click", (event) => {
+    if (event.target === resetConfirmOverlay) {
+      closeResetConfirm();
+    }
+  });
+
   goToStartBtn.addEventListener("click", () => {
     window.location.href = "/";
   });
