@@ -426,3 +426,24 @@ button {
     font-size: 0.9rem;
   }
 }
+
+.confirm-box {
+  width: min(340px, 100%);
+}
+
+.confirm-text {
+  margin: 0 0 16px;
+  color: #cbd5e1;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.confirm-actions {
+  margin-top: 4px;
+}
+
+.danger-btn {
+  background: #ef4444 !important;
+  color: #fff1f2 !important;
+}
