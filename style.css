@@ -186,10 +186,14 @@ select {
   transform: scale(0.99);
 }
 
-body.focus-mode #supportCard,
-body.focus-mode #nextBtn {
+body.focus-mode #supportCard {
   opacity: 0.22;
   filter: saturate(0.7);
+}
+
+body.focus-mode #nextBtn {
+  opacity: 1;
+  filter: none;
 }
 
 body.focus-mode .countdown-card {
